@@ -1,0 +1,3663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+<title>SMC Formulation Workbench</title>
+<style>
+  :root{
+    --bg:#0f1720;
+    --panel:#17212b;
+    --panel2:#1d2a36;
+    --soft:#253545;
+    --text:#e8eef4;
+    --muted:#aebdca;
+    --accent:#3aa3ff;
+    --accent2:#4ad29f;
+    --warn:#ffb648;
+    --danger:#ff6b6b;
+    --ok:#4ddf92;
+    --line:#2d4154;
+    --card:#13202a;
+    --shadow:0 10px 24px rgba(0,0,0,.25);
+    --radius:14px;
+    --radius-sm:10px;
+    --touch:42px;
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Roboto,Arial,sans-serif}
+  body{min-height:100vh}
+  button,input,select,textarea{font:inherit}
+  a{color:var(--accent)}
+  .app{
+    display:grid;
+    grid-template-columns:260px 1fr;
+    min-height:100vh;
+  }
+  .sidebar{
+    background:linear-gradient(180deg,#101820,#13222c);
+    border-right:1px solid var(--line);
+    padding:14px;
+    position:sticky;
+    top:0;
+    height:100vh;
+    overflow:auto;
+  }
+  .brand{
+    display:flex;align-items:center;gap:10px;
+    margin-bottom:14px;padding:10px;border-radius:12px;background:var(--panel);
+    box-shadow:var(--shadow)
+  }
+  .brand-badge{
+    width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));
+    display:grid;place-items:center;font-weight:700;color:#081019
+  }
+  .brand h1{font-size:16px;line-height:1.2;margin:0}
+  .brand small{display:block;color:var(--muted)}
+  .offline{
+    margin:10px 0 14px;
+    padding:10px 12px;border:1px solid var(--line);background:#10222c;border-radius:10px;color:#9ce3ff;
+    font-size:12px
+  }
+  .nav{
+    display:flex;flex-direction:column;gap:8px
+  }
+  .nav button{
+    width:100%;text-align:left;border:none;border-radius:12px;padding:12px;background:var(--panel);color:var(--text);
+    cursor:pointer;min-height:var(--touch)
+  }
+  .nav button.active,.nav button:hover{background:var(--soft)}
+  .main{
+    padding:16px;
+    overflow:auto;
+  }
+  .topbar{
+    display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:14px
+  }
+  .toolbar{
+    display:flex;flex-wrap:wrap;gap:8px
+  }
+  .btn{
+    border:none;background:var(--accent);color:white;padding:11px 14px;border-radius:12px;cursor:pointer;min-height:var(--touch)
+  }
+  .btn.secondary{background:var(--panel2);border:1px solid var(--line)}
+  .btn.good{background:var(--accent2);color:#082116}
+  .btn.warn{background:var(--warn);color:#332000}
+  .btn.danger{background:var(--danger)}
+  .btn.small{padding:8px 10px;border-radius:10px}
+  .layout{
+    display:grid;gap:14px
+  }
+  .grid-2{grid-template-columns:1fr 1fr}
+  .grid-3{grid-template-columns:repeat(3,1fr)}
+  .grid-4{grid-template-columns:repeat(4,1fr)}
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:14px;
+    box-shadow:var(--shadow);
+    min-width:0;
+  }
+  .card h2,.card h3,.card h4{margin:0 0 10px}
+  .subtle{color:var(--muted)}
+  .kpi-grid{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:12px
+  }
+  .kpi{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:14px;padding:14px
+  }
+  .kpi .label{color:var(--muted);font-size:12px}
+  .kpi .value{font-size:24px;font-weight:700;margin-top:6px}
+  .kpi .status{font-size:12px;margin-top:8px}
+  .ok{color:var(--ok)}
+  .warn{color:var(--warn)}
+  .danger{color:var(--danger)}
+  .section-title{
+    display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:8px
+  }
+  .form-grid{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:10px
+  }
+  label{
+    display:flex;flex-direction:column;gap:5px;font-size:13px;color:var(--muted)
+  }
+  input,select,textarea{
+    background:#0f1a23;border:1px solid var(--line);color:var(--text);
+    border-radius:10px;padding:10px;min-height:var(--touch);width:100%
+  }
+  textarea{min-height:90px;resize:vertical}
+  .table-wrap{
+    overflow:auto;border:1px solid var(--line);border-radius:12px
+  }
+  table{width:100%;border-collapse:collapse;min-width:900px;background:var(--panel)}
+  th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  th{position:sticky;top:0;background:#12202a;z-index:1}
+  tr:hover td{background:rgba(255,255,255,.02)}
+  .badge{
+    display:inline-block;padding:4px 8px;border-radius:999px;background:#133348;border:1px solid var(--line);font-size:12px
+  }
+  .alert-list{display:flex;flex-direction:column;gap:8px}
+  .alert{
+    padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:#111c25
+  }
+  .alert.warn{border-color:#8d6b2f;background:#2b2414;color:#ffd48f}
+  .alert.danger{border-color:#8a4040;background:#2c1717;color:#ffc3c3}
+  .alert.ok{border-color:#2a6647;background:#102318;color:#b8f0d2}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+  .tab-btn{
+    border:none;padding:10px 12px;border-radius:10px;background:var(--panel2);color:var(--text);cursor:pointer
+  }
+  .tab-btn.active{background:var(--accent)}
+  .hidden{display:none!important}
+  .split{
+    display:grid;grid-template-columns:1.15fr .85fr;gap:14px
+  }
+  canvas{
+    width:100%;height:auto;background:#0f1a23;border:1px solid var(--line);border-radius:12px
+  }
+  .note{
+    font-size:12px;color:var(--muted);line-height:1.5
+  }
+  .mini{
+    font-size:12px;color:var(--muted)
+  }
+  .pill-row{display:flex;flex-wrap:wrap;gap:6px}
+  .hr{height:1px;background:var(--line);margin:10px 0}
+  .right{text-align:right}
+  .center{text-align:center}
+  .mono{font-family:Consolas,Monaco,monospace}
+  .modal{
+    position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:50;padding:14px
+  }
+  .modal.show{display:flex}
+  .modal-content{
+    width:min(1100px,100%);max-height:90vh;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px
+  }
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .list{
+    display:flex;flex-direction:column;gap:8px
+  }
+  .list-item{
+    border:1px solid var(--line);border-radius:12px;padding:12px;background:#12202a
+  }
+  .small-input{width:110px}
+  .nowrap{white-space:nowrap}
+  .sticky-actions{
+    position:sticky;bottom:0;background:linear-gradient(180deg,rgba(23,33,43,0),rgba(23,33,43,1) 35%);
+    padding-top:12px;margin-top:8px
+  }
+
+  @media (max-width:1100px){
+    .app{grid-template-columns:1fr}
+    .sidebar{position:static;height:auto}
+    .kpi-grid{grid-template-columns:repeat(2,1fr)}
+    .form-grid,.grid-4,.grid-3,.grid-2,.split,.two-col,.three-col{grid-template-columns:1fr}
+  }
+  @media (max-width:700px){
+    .main{padding:10px}
+    .sidebar{padding:10px}
+    .brand h1{font-size:14px}
+    .kpi-grid{grid-template-columns:1fr}
+    th,td{padding:8px}
+    .btn{width:auto}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-badge">SMC</div>
+      <div>
+        <h1>SMC Formulation Workbench</h1>
+        <small>Offline formulation, costing, properties, suppliers</small>
+      </div>
+    </div>
+
+    <div class="offline">OFFLINE MODE — DATA STORED LOCALLY</div>
+
+    <div class="nav" id="nav"></div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <h2 style="margin:0">Production-Grade Offline SMC Workbench</h2>
+        <div class="subtle">Engineering formulation development, costing, property estimation, auditability and revision control</div>
+      </div>
+      <div class="toolbar">
+        <button class="btn good" id="btnNewFormulation">+ NEW FORMULATION</button>
+        <button class="btn secondary" id="btnSaveAll">Save</button>
+        <button class="btn secondary" id="btnBackup">Backup DB</button>
+        <button class="btn secondary" id="btnRestore">Restore DB</button>
+        <button class="btn warn" id="btnFactoryReset">Reset Factory Presets</button>
+      </div>
+    </div>
+
+    <div id="appView"></div>
+  </main>
+</div>
+
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <div class="section-title">
+      <h3 id="modalTitle">Dialog</h3>
+      <button class="btn secondary small" onclick="UI.closeModal()">Close</button>
+    </div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<input type="file" id="fileInput" class="hidden" />
+
+<script>
+/* ============================================================
+   SMC Formulation Workbench
+   Single-file, offline, no external dependencies
+   ============================================================ */
+
+/* -------------------------
+   Navigation
+------------------------- */
+const NAV_ITEMS = [
+  "Dashboard",
+  "New Formulation",
+  "Formulations",
+  "Materials",
+  "Suppliers",
+  "Applications",
+  "Properties",
+  "Costing",
+  "Batch Calculator",
+  "What-if Analysis",
+  "Comparison",
+  "Experimental Data",
+  "Database",
+  "Reports",
+  "Settings"
+];
+
+/* -------------------------
+   Utility
+------------------------- */
+const Util = {
+  uid(prefix="ID"){
+    return prefix + "-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2,8).toUpperCase();
+  },
+  today(){
+    return new Date().toISOString().slice(0,10);
+  },
+  nowISO(){
+    return new Date().toISOString();
+  },
+  fmt(n, d=2){
+    const x = Number(n);
+    if (!isFinite(x)) return "-";
+    return x.toLocaleString(undefined, {maximumFractionDigits:d, minimumFractionDigits:d});
+  },
+  num(v, def=0){
+    const x = parseFloat(v);
+    return isFinite(x) ? x : def;
+  },
+  clone(obj){
+    return JSON.parse(JSON.stringify(obj));
+  },
+  download(filename, content, type='application/json'){
+    const blob = new Blob([content], {type});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  },
+  csvEscape(v){
+    if (v == null) return '';
+    const s = String(v);
+    if (/[",\n]/.test(s)) return '"' + s.replace(/"/g,'""') + '"';
+    return s;
+  },
+  parseCSV(text){
+    const rows = [];
+    let row = [], cur = '', inQ = false;
+    for(let i=0;i<text.length;i++){
+      const c = text[i], n = text[i+1];
+      if(inQ){
+        if(c === '"' && n === '"'){ cur += '"'; i++; }
+        else if(c === '"'){ inQ = false; }
+        else cur += c;
+      }else{
+        if(c === '"') inQ = true;
+        else if(c === ','){ row.push(cur); cur = ''; }
+        else if(c === '\n'){ row.push(cur); rows.push(row); row = []; cur = ''; }
+        else if(c !== '\r') cur += c;
+      }
+    }
+    row.push(cur); rows.push(row);
+    return rows;
+  },
+  debounce(fn, ms=200){
+    let t;
+    return (...args)=>{ clearTimeout(t); t = setTimeout(()=>fn(...args), ms); };
+  }
+};
+
+/* -------------------------
+   IndexedDB wrapper
+------------------------- */
+const DB = {
+  db:null,
+  name:"SMCWorkbenchDB",
+  version:1,
+  stores:[
+    "appMeta","materials","suppliers","applications","presets","formulations",
+    "revisions","priceHistory","experimentalData","equations","settings","inventory"
+  ],
+  open(){
+    return new Promise((resolve,reject)=>{
+      const req = indexedDB.open(this.name, this.version);
+      req.onupgradeneeded = e=>{
+        const db = e.target.result;
+        this.stores.forEach(s=>{
+          if(!db.objectStoreNames.contains(s)) db.createObjectStore(s, {keyPath:"id"});
+        });
+      };
+      req.onsuccess = e=>{ this.db = e.target.result; resolve(this.db); };
+      req.onerror = e=> reject(e);
+    });
+  },
+  tx(store, mode='readonly'){
+    return this.db.transaction(store, mode).objectStore(store);
+  },
+  getAll(store){
+    return new Promise((resolve,reject)=>{
+      const req = this.tx(store).getAll();
+      req.onsuccess = ()=>resolve(req.result || []);
+      req.onerror = reject;
+    });
+  },
+  get(store, id){
+    return new Promise((resolve,reject)=>{
+      const req = this.tx(store).get(id);
+      req.onsuccess = ()=>resolve(req.result);
+      req.onerror = reject;
+    });
+  },
+  put(store, item){
+    return new Promise((resolve,reject)=>{
+      const req = this.tx(store,'readwrite').put(item);
+      req.onsuccess = ()=>resolve(item);
+      req.onerror = reject;
+    });
+  },
+  bulkPut(store, items){
+    return Promise.all(items.map(i=>this.put(store,i)));
+  },
+  delete(store, id){
+    return new Promise((resolve,reject)=>{
+      const req = this.tx(store,'readwrite').delete(id);
+      req.onsuccess = ()=>resolve(true);
+      req.onerror = reject;
+    });
+  },
+  clear(store){
+    return new Promise((resolve,reject)=>{
+      const req = this.tx(store,'readwrite').clear();
+      req.onsuccess = ()=>resolve(true);
+      req.onerror = reject;
+    });
+  }
+};
+
+/* -------------------------
+   Application state
+------------------------- */
+const State = {
+  data:{
+    appMeta:[],
+    materials:[],
+    suppliers:[],
+    applications:[],
+    presets:[],
+    formulations:[],
+    revisions:[],
+    priceHistory:[],
+    experimentalData:[],
+    equations:[],
+    settings:[],
+    inventory:[]
+  },
+  currentView:"Dashboard",
+  activeFormulationId:null,
+  compareIds:[],
+  lastWhatIf:null
+};
+
+/* -------------------------
+   Master data architecture
+------------------------- */
+const DEFAULT_MATERIAL_GROUPS = [
+  "Unsaturated Polyester Resin",
+  "Low Profile Additive / Thermoplastic Modifier",
+  "Calcium Carbonate Filler",
+  "Glass Fiber",
+  "Initiator / Catalyst",
+  "Accelerator / Promoter",
+  "Inhibitor / Retarder",
+  "Mold Release Agent",
+  "Thickening Agent",
+  "Low Shrink / Shrink Control Additive",
+  "Internal Release Additive",
+  "Pigment / Colouring Agent",
+  "UV Stabilizer",
+  "Antioxidant",
+  "Flame Retardant",
+  "Conductive / Functional Additive",
+  "Toughening / Impact Modifier",
+  "Process Aid / Rheology Modifier",
+  "Other Functional Additive"
+];
+
+const MATERIAL_GROUP_FIELDS = {
+  "Unsaturated Polyester Resin":[
+    "materialName","resinGrade","supplier","supplierCountry","manufacturer","density","viscosity","styreneContent",
+    "acidValue","gelTime","cureCharacteristics","Tg","tensileStrength","flexuralStrength","flexuralModulus",
+    "elongation","HDT","shrinkage","waterAbsorption","pricePerKg","currency","MOQ","leadTime","datasheetReference","notes"
+  ],
+  "Low Profile Additive / Thermoplastic Modifier":["materialName","density","molecularInfo","shrinkageControl","viscosity","compatibility","pricePerKg","supplier","notes"],
+  "Calcium Carbonate Filler":["materialName","CaCO3Percent","purity","particleSize","moisture","density","oilAbsorption","whiteness","surfaceTreatment","pricePerKg","supplier","notes"],
+  "Glass Fiber":["materialName","fiberType","choppedStrandLength","filamentDiameter","sizing","tex","tensileStrength","modulus","density","moisture","fiberContent","pricePerKg","supplier","notes"],
+  "Initiator / Catalyst":["materialName","activeOxygen","concentration","halfLife","decompositionTemperature","gelTimeEffect","cureTemperature","pricePerKg","supplier","notes"],
+  "Accelerator / Promoter":["materialName","activeConcentration","viscosity","density","cureAcceleration","pricePerKg","supplier","notes"],
+  "Inhibitor / Retarder":["materialName","chemistry","concentration","inhibitionEffect","gelTimeEffect","temperatureSensitivity","pricePerKg","supplier","notes"],
+  "Mold Release Agent":["materialName","chemistry","internalExternalRelease","recommendedDosage","cof","thermalStability","compatibility","pricePerKg","supplier","notes"],
+  "Thickening Agent":["materialName","MgOActivity","particleSize","purity","thickeningRate","viscosityEffect","pricePerKg","supplier","notes"],
+  "Low Shrink / Shrink Control Additive":["materialName","shrinkageReduction","compatibility","recommendedPercentage","density","pricePerKg","supplier","notes"],
+  "Internal Release Additive":["materialName","activeContent","releaseEfficiency","compatibility","dosage","pricePerKg","supplier","notes"],
+  "Pigment / Colouring Agent":["materialName","pigmentType","colourIndex","heatStability","lightStability","dosage","density","pricePerKg","supplier","notes"],
+  "UV Stabilizer":["materialName","UVStability","dosage","thermalStability","compatibility","pricePerKg","supplier","notes"],
+  "Antioxidant":["materialName","chemistry","decompositionTemperature","dosage","thermalStability","compatibility","pricePerKg","supplier","notes"],
+  "Flame Retardant":["materialName","activeContent","particleSize","decompositionTemperature","LOIEffect","UL94Effect","smokeCharacteristics","density","pricePerKg","supplier","notes"],
+  "Conductive / Functional Additive":["materialName","conductivity","particleSize","surfaceArea","density","dosage","pricePerKg","supplier","notes"],
+  "Toughening / Impact Modifier":["materialName","impactModification","tensileEffect","elongationEffect","compatibility","recommendedDosage","pricePerKg","supplier","notes"],
+  "Process Aid / Rheology Modifier":["materialName","viscosityEffect","flowImprovement","processingTemperature","dosage","compatibility","pricePerKg","supplier","notes"],
+  "Other Functional Additive":["materialName","customProperty1","customProperty2","customProperty3","pricePerKg","supplier","notes"]
+};
+
+const PROPERTY_DEFS = [
+  {key:"density", label:"Density", unit:"g/cm³", method:"composition_inverse_density", equation:"rho = 1 / Σ(wi/rhoi)", category:"Physical"},
+  {key:"specificGravity", label:"Specific Gravity", unit:"-", method:"derived", equation:"SG = density / 1.0", category:"Physical"},
+  {key:"fiberContent", label:"Fiber Content", unit:"%", method:"category_sum", equation:"Σ ingredient % where category = Glass Fiber", category:"Physical"},
+  {key:"fillerContent", label:"Filler Content", unit:"%", method:"category_sum", equation:"Σ ingredient % where filler-type", category:"Physical"},
+  {key:"resinContent", label:"Resin Content", unit:"%", method:"category_sum", equation:"Σ ingredient % where resin/LPA-related as user classified", category:"Physical"},
+  {key:"moistureSensitivity", label:"Moisture Sensitivity", unit:"index", method:"weighted_average", equation:"Σ(wi*Pi)", category:"Physical"},
+
+  {key:"tensileStrength", label:"Tensile Strength", unit:"MPa", method:"weighted_average", equation:"Σ(wi*Pi) × CF", category:"Mechanical"},
+  {key:"tensileModulus", label:"Tensile Modulus", unit:"GPa", method:"weighted_average", equation:"Σ(wi*Pi) × CF", category:"Mechanical"},
+  {key:"flexuralStrength", label:"Flexural Strength", unit:"MPa", method:"weighted_average", equation:"Σ(wi*Pi) × CF", category:"Mechanical"},
+  {key:"flexuralModulus", label:"Flexural Modulus", unit:"GPa", method:"weighted_average", equation:"Σ(wi*Pi) × CF", category:"Mechanical"},
+  {key:"impactStrength", label:"Impact Strength", unit:"kJ/m²", method:"weighted_average", equation:"Σ(wi*Pi) × CF", category:"Mechanical"},
+  {key:"elongation", label:"Elongation", unit:"%", method:"weighted_average", equation:"Σ(wi*Pi) × CF", category:"Mechanical"},
+  {key:"compressiveStrength", label:"Compressive Strength", unit:"MPa", method:"weighted_average", equation:"Σ(wi*Pi) × CF", category:"Mechanical"},
+  {key:"shearStrength", label:"Shear Strength", unit:"MPa", method:"weighted_average", equation:"Σ(wi*Pi) × CF", category:"Mechanical"},
+
+  {key:"HDT", label:"HDT", unit:"°C", method:"weighted_average", equation:"Σ(wi*Pi) × CF", category:"Thermal"},
+  {key:"Tg", label:"Tg", unit:"°C", method:"weighted_average", equation:"Σ(wi*Pi) × CF", category:"Thermal"},
+  {key:"thermalConductivity", label:"Thermal Conductivity", unit:"W/m·K", method:"weighted_average", equation:"Σ(wi*Pi) × CF", category:"Thermal"},
+  {key:"CTE", label:"CTE", unit:"ppm/°C", method:"weighted_average", equation:"Σ(wi*Pi) × CF", category:"Thermal"},
+  {key:"thermalStability", label:"Thermal Stability", unit:"index", method:"weighted_average", equation:"Σ(wi*Pi) × CF", category:"Thermal"},
+
+  {key:"dielectricStrength", label:"Dielectric Strength", unit:"kV/mm", method:"weighted_average", equation:"Σ(wi*Pi) × CF", category:"Electrical"},
+  {key:"dielectricConstant", label:"Dielectric Constant", unit:"-", method:"weighted_average", equation:"Σ(wi*Pi) × CF", category:"Electrical"},
+  {key:"volumeResistivity", label:"Volume Resistivity", unit:"ohm·cm", method:"weighted_average", equation:"Σ(wi*Pi) × CF", category:"Electrical"},
+  {key:"surfaceResistivity", label:"Surface Resistivity", unit:"ohm", method:"weighted_average", equation:"Σ(wi*Pi) × CF", category:"Electrical"},
+
+  {key:"viscosity", label:"Viscosity", unit:"cP", method:"weighted_average", equation:"Σ(wi*Pi) × CF", category:"Processing"},
+  {key:"gelTime", label:"Gel Time", unit:"min", method:"weighted_average", equation:"Σ(wi*Pi) × CF", category:"Processing"},
+  {key:"cureTime", label:"Cure Time", unit:"min", method:"weighted_average", equation:"Σ(wi*Pi) × CF", category:"Processing"},
+  {key:"thickeningTime", label:"Thickening Time", unit:"h", method:"weighted_average", equation:"Σ(wi*Pi) × CF", category:"Processing"},
+  {key:"moldTemperature", label:"Mold Temperature", unit:"°C", method:"weighted_average", equation:"Σ(wi*Pi) × CF", category:"Processing"},
+  {key:"pressTemperature", label:"Press Temperature", unit:"°C", method:"weighted_average", equation:"Σ(wi*Pi) × CF", category:"Processing"},
+  {key:"cycleTime", label:"Cycle Time", unit:"s", method:"weighted_average", equation:"Σ(wi*Pi) × CF", category:"Processing"},
+  {key:"flowCharacteristics", label:"Flow Characteristics", unit:"index", method:"weighted_average", equation:"Σ(wi*Pi) × CF", category:"Processing"},
+  {key:"shrinkage", label:"Shrinkage", unit:"%", method:"weighted_average", equation:"Σ(wi*Pi) × CF", category:"Processing"},
+
+  {key:"UL94", label:"UL94 Rating Index", unit:"index", method:"weighted_average", equation:"Σ(wi*Pi) × CF", category:"Fire"},
+  {key:"LOI", label:"LOI", unit:"%", method:"weighted_average", equation:"Σ(wi*Pi) × CF", category:"Fire"},
+  {key:"frLoading", label:"Flame Retardant Loading", unit:"%", method:"category_sum", equation:"Σ ingredient % where category = Flame Retardant", category:"Fire"}
+];
+
+const DEFAULT_APPLICATIONS = [
+  "Automotive Exterior",
+  "Automotive Structural",
+  "Electrical",
+  "Industrial",
+  "HVAC",
+  "Railway",
+  "EV Components",
+  "Fire-retardant components",
+  "General-purpose SMC"
+];
+
+/* -------------------------
+   Initial demo data
+   NOTE: DEMO / REFERENCE DATA
+------------------------- */
+function createInitialData(){
+  const today = Util.today();
+
+  const settings = [
+    {id:"settings-general", offline:true, unitsSystem:"Metric", defaultCurrency:"INR",
+      exchangeRates:{USD:83.0, INR:1.0, CNY:11.5, EUR:90.0},
+      costToggles:{freight:true, insurance:true, duty:true, gst:true, other:true},
+      note:"DEMO / REFERENCE DATA"}
+  ];
+
+  const equations = PROPERTY_DEFS.map(p=>({
+    id:"eq-"+p.key,
+    propertyKey:p.key,
+    label:p.label,
+    category:p.category,
+    method:p.method,
+    equation:p.equation,
+    correctionFactor:1,
+    confidence:"Estimated",
+    sourceType:"Calculated",
+    reference:"Default editable theoretical model",
+    updated:today,
+    notes:"THEORETICAL ESTIMATE — editable by user"
+  }));
+
+  const applications = DEFAULT_APPLICATIONS.map((name,i)=>({
+    id:"app-"+(i+1),
+    name,
+    notes:"Starting formulation / engineering preset — editable",
+    targetRanges:{
+      resin:[20,35],
+      filler:[20,55],
+      glass:[15,35],
+      lpa:[0,15],
+      catalyst:[0.2,2.0],
+      accelerator:[0.05,1.0],
+      thickener:[0.5,5.0],
+      pigment:[0,5],
+      fr:[0,30],
+      other:[0,20]
+    },
+    created:today,
+    sourceType:"Estimated",
+    confidence:"Reference",
+    reference:"DEMO / REFERENCE DATA"
+  }));
+
+  const presets = applications.map((app,i)=>({
+    id:"preset-"+(i+1),
+    applicationId:app.id,
+    name:app.name+" Preset",
+    editable:true,
+    composition:[
+      {category:"Unsaturated Polyester Resin", percent:26},
+      {category:"Low Profile Additive / Thermoplastic Modifier", percent:6},
+      {category:"Calcium Carbonate Filler", percent:32},
+      {category:"Glass Fiber", percent:28},
+      {category:"Initiator / Catalyst", percent:1},
+      {category:"Accelerator / Promoter", percent:0.3},
+      {category:"Inhibitor / Retarder", percent:0.1},
+      {category:"Mold Release Agent", percent:1},
+      {category:"Thickening Agent", percent:1.2},
+      {category:"Low Shrink / Shrink Control Additive", percent:1.4},
+      {category:"Internal Release Additive", percent:0.4},
+      {category:"Pigment / Colouring Agent", percent:0.8},
+      {category:"UV Stabilizer", percent:0.2},
+      {category:"Antioxidant", percent:0.1},
+      {category:"Flame Retardant", percent:0.0},
+      {category:"Conductive / Functional Additive", percent:0.0},
+      {category:"Toughening / Impact Modifier", percent:1.0},
+      {category:"Process Aid / Rheology Modifier", percent:0.3},
+      {category:"Other Functional Additive", percent:0.2}
+    ],
+    sourceType:"Estimated",
+    confidence:"Reference",
+    reference:"DEMO / REFERENCE DATA",
+    created:today
+  }));
+
+  const baseMaterials = [
+    {
+      category:"Unsaturated Polyester Resin",
+      materialName:"UPR General Purpose Resin",
+      grade:"UPR-GP-01",
+      supplier:"Demo Resin Supplier India",
+      supplierCountry:"India",
+      manufacturer:"Demo Resin Manufacturer",
+      density:1.12, viscosity:1200, styreneContent:34, acidValue:20, gelTime:8,
+      cureCharacteristics:"Standard", Tg:105, tensileStrength:45, tensileModulus:3.2, flexuralStrength:85, flexuralModulus:3.6,
+      elongation:2.2, HDT:95, shrinkage:6.5, waterAbsorption:0.25, thermalConductivity:0.22, CTE:90,
+      dielectricStrength:14, dielectricConstant:3.5, volumeResistivity:1e13, surfaceResistivity:1e12,
+      impactStrength:6, compressiveStrength:110, shearStrength:30, moistureSensitivity:4, thermalStability:6, flowCharacteristics:6,
+      cureTime:2.5, thickeningTime:24, moldTemperature:145, pressTemperature:145, cycleTime:180,
+      UL94:1, LOI:18,
+      pricePerKg:115, currency:"INR", moq:"500 kg", leadTime:"7 days",
+      datasheetReference:"DEMO / REFERENCE DATA", notes:"Editable demo material",
+      sourceType:"Estimated", confidence:"Reference", date:today, reference:"DEMO / REFERENCE DATA"
+    },
+    {
+      category:"Low Profile Additive / Thermoplastic Modifier",
+      materialName:"PVAc LPA Demo",
+      grade:"LPA-PVAc-01",
+      supplier:"Demo LPA Supplier India",
+      density:1.19, viscosity:3500, shrinkageControl:7, compatibility:8,
+      tensileStrength:15, tensileModulus:2.0, flexuralStrength:25, flexuralModulus:2.1, elongation:4.5,
+      HDT:75, Tg:65, thermalConductivity:0.20, CTE:100, dielectricStrength:12, dielectricConstant:3.2,
+      volumeResistivity:1e12, surfaceResistivity:1e11, gelTime:0, cureTime:0, thickeningTime:0, moldTemperature:0, pressTemperature:0, cycleTime:0,
+      impactStrength:5, compressiveStrength:20, shearStrength:10, moistureSensitivity:4, thermalStability:5, flowCharacteristics:5, shrinkage:1.0,
+      UL94:1, LOI:18, pricePerKg:180, currency:"INR", sourceType:"Estimated", confidence:"Reference", date:today, reference:"DEMO / REFERENCE DATA"
+    },
+    {
+      category:"Calcium Carbonate Filler",
+      materialName:"CaCO3 Coated Demo",
+      grade:"FILL-CACO3-01",
+      supplier:"Demo Filler Supplier India",
+      density:2.70, particleSize:5, purity:98, moisture:0.2, oilAbsorption:16, whiteness:94, surfaceTreatment:"Stearate",
+      tensileStrength:5, tensileModulus:20, flexuralStrength:8, flexuralModulus:18, elongation:0.2,
+      HDT:300, Tg:0, thermalConductivity:1.8, CTE:12, dielectricStrength:8, dielectricConstant:7,
+      volumeResistivity:1e9, surfaceResistivity:1e9, impactStrength:1, compressiveStrength:55, shearStrength:5, moistureSensitivity:3, thermalStability:9, flowCharacteristics:4,
+      shrinkage:0.1, UL94:1, LOI:20, pricePerKg:8, currency:"INR", sourceType:"Estimated", confidence:"Reference", date:today, reference:"DEMO / REFERENCE DATA"
+    },
+    {
+      category:"Glass Fiber",
+      materialName:"E-Glass Chopped Strand Demo",
+      grade:"GF-E-12-25",
+      supplier:"Demo Glass Supplier India",
+      fiberType:"E-glass", choppedStrandLength:25, filamentDiameter:12, sizing:"UP compatible", tex:2400,
+      tensileStrength:2000, tensileModulus:72, density:2.58, moisture:0.1, fiberContent:100,
+      flexuralStrength:1500, flexuralModulus:72, elongation:2.8, HDT:650, Tg:0, thermalConductivity:1.05, CTE:5,
+      dielectricStrength:20, dielectricConstant:6.2, volumeResistivity:1e14, surfaceResistivity:1e13,
+      impactStrength:25, compressiveStrength:1000, shearStrength:40, moistureSensitivity:2, thermalStability:10, flowCharacteristics:2, shrinkage:0.0,
+      gelTime:0, cureTime:0, thickeningTime:0, moldTemperature:0, pressTemperature:0, cycleTime:0, UL94:1, LOI:21,
+      pricePerKg:95, currency:"INR", sourceType:"Estimated", confidence:"Reference", date:today, reference:"DEMO / REFERENCE DATA"
+    },
+    {
+      category:"Initiator / Catalyst",
+      materialName:"Peroxide Catalyst Demo",
+      grade:"CAT-01",
+      supplier:"Demo Catalyst Supplier India",
+      density:1.10, activeOxygen:9, concentration:100, halfLife:10, decompositionTemperature:95, gelTimeEffect:-3, cureTemperature:140,
+      tensileStrength:0, tensileModulus:0, flexuralStrength:0, flexuralModulus:0, elongation:0, HDT:0, Tg:0, thermalConductivity:0.1, CTE:120,
+      dielectricStrength:0, dielectricConstant:0, volumeResistivity:0, surfaceResistivity:0, impactStrength:0, compressiveStrength:0, shearStrength:0,
+      moistureSensitivity:3, thermalStability:2, flowCharacteristics:0, gelTime:2, cureTime:2, shrinkage:0, UL94:0, LOI:0,
+      pricePerKg:260, currency:"INR", sourceType:"Estimated", confidence:"Reference", date:today, reference:"DEMO / REFERENCE DATA"
+    },
+    {
+      category:"Accelerator / Promoter",
+      materialName:"Cobalt Accelerator Demo",
+      grade:"ACC-01",
+      supplier:"Demo Accelerator Supplier India",
+      density:0.98, activeConcentration:6, viscosity:80, cureAcceleration:7, gelTime:-2, cureTime:-1,
+      pricePerKg:220, currency:"INR", sourceType:"Estimated", confidence:"Reference", date:today, reference:"DEMO / REFERENCE DATA"
+    },
+    {
+      category:"Inhibitor / Retarder",
+      materialName:"Inhibitor Demo",
+      grade:"INH-01",
+      supplier:"Demo Chemical Supplier India",
+      density:1.02, concentration:100, inhibitionEffect:6, gelTimeEffect:3, temperatureSensitivity:5, pricePerKg:340, currency:"INR",
+      sourceType:"Estimated", confidence:"Reference", date:today, reference:"DEMO / REFERENCE DATA"
+    },
+    {
+      category:"Mold Release Agent",
+      materialName:"Release Additive Demo",
+      grade:"MRA-01",
+      supplier:"Demo Additive Supplier India",
+      density:0.95, internalExternalRelease:"Internal", recommendedDosage:1, cof:0.3, thermalStability:7, compatibility:8, pricePerKg:210, currency:"INR",
+      sourceType:"Estimated", confidence:"Reference", date:today, reference:"DEMO / REFERENCE DATA"
+    },
+    {
+      category:"Thickening Agent",
+      materialName:"MgO Demo",
+      grade:"THK-01",
+      supplier:"Demo Thickener Supplier India",
+      density:3.58, MgOActivity:70, particleSize:3, purity:92, thickeningRate:8, viscosityEffect:7, pricePerKg:28, currency:"INR",
+      sourceType:"Estimated", confidence:"Reference", date:today, reference:"DEMO / REFERENCE DATA"
+    },
+    {
+      category:"Low Shrink / Shrink Control Additive",
+      materialName:"LSA Demo",
+      grade:"LSA-01",
+      supplier:"Demo LSA Supplier India",
+      density:1.08, shrinkageReduction:6, compatibility:8, recommendedPercentage:1.5, pricePerKg:175, currency:"INR",
+      sourceType:"Estimated", confidence:"Reference", date:today, reference:"DEMO / REFERENCE DATA"
+    },
+    {
+      category:"Internal Release Additive",
+      materialName:"IRA Demo",
+      grade:"IRA-01",
+      supplier:"Demo IRA Supplier India",
+      density:0.98, activeContent:60, releaseEfficiency:7, compatibility:7, dosage:0.5, pricePerKg:240, currency:"INR",
+      sourceType:"Estimated", confidence:"Reference", date:today, reference:"DEMO / REFERENCE DATA"
+    },
+    {
+      category:"Pigment / Colouring Agent",
+      materialName:"Black Pigment Demo",
+      grade:"PIG-BLK-01",
+      supplier:"Demo Pigment Supplier India",
+      density:1.80, pigmentType:"Black", colourIndex:"Demo", heatStability:8, lightStability:8, dosage:1, pricePerKg:150, currency:"INR",
+      sourceType:"Estimated", confidence:"Reference", date:today, reference:"DEMO / REFERENCE DATA"
+    },
+    {
+      category:"UV Stabilizer",
+      materialName:"UV Demo",
+      grade:"UV-01",
+      supplier:"Demo UV Supplier India",
+      density:1.05, UVStability:7, dosage:0.2, thermalStability:7, compatibility:7, pricePerKg:450, currency:"INR",
+      sourceType:"Estimated", confidence:"Reference", date:today, reference:"DEMO / REFERENCE DATA"
+    },
+    {
+      category:"Antioxidant",
+      materialName:"AO Demo",
+      grade:"AO-01",
+      supplier:"Demo AO Supplier India",
+      density:1.03, decompositionTemperature:220, dosage:0.1, thermalStability:8, compatibility:8, pricePerKg:420, currency:"INR",
+      sourceType:"Estimated", confidence:"Reference", date:today, reference:"DEMO / REFERENCE DATA"
+    },
+    {
+      category:"Flame Retardant",
+      materialName:"ATH Demo",
+      grade:"FR-ATH-01",
+      supplier:"Demo FR Supplier India",
+      density:2.42, activeContent:99, particleSize:2, decompositionTemperature:220, LOIEffect:8, UL94Effect:8, smokeCharacteristics:7,
+      tensileStrength:2, tensileModulus:12, flexuralStrength:4, flexuralModulus:11, elongation:0.1, HDT:200, thermalConductivity:0.6, CTE:15,
+      pricePerKg:32, currency:"INR", sourceType:"Estimated", confidence:"Reference", date:today, reference:"DEMO / REFERENCE DATA"
+    },
+    {
+      category:"Conductive / Functional Additive",
+      materialName:"Carbon Black Demo",
+      grade:"COND-01",
+      supplier:"Demo Conductive Supplier India",
+      density:1.90, conductivity:6, particleSize:0.05, surfaceArea:120, dosage:1, volumeResistivity:1e3, surfaceResistivity:1e4,
+      pricePerKg:160, currency:"INR", sourceType:"Estimated", confidence:"Reference", date:today, reference:"DEMO / REFERENCE DATA"
+    },
+    {
+      category:"Toughening / Impact Modifier",
+      materialName:"Impact Modifier Demo",
+      grade:"TIM-01",
+      supplier:"Demo Toughener Supplier India",
+      density:1.02, impactModification:8, tensileEffect:-1, elongationEffect:4, compatibility:8, recommendedDosage:1.5, pricePerKg:260, currency:"INR",
+      sourceType:"Estimated", confidence:"Reference", date:today, reference:"DEMO / REFERENCE DATA"
+    },
+    {
+      category:"Process Aid / Rheology Modifier",
+      materialName:"Rheology Modifier Demo",
+      grade:"PA-01",
+      supplier:"Demo Process Aid Supplier India",
+      density:1.00, viscosityEffect:-2, flowImprovement:7, processingTemperature:145, dosage:0.3, compatibility:8, pricePerKg:195, currency:"INR",
+      sourceType:"Estimated", confidence:"Reference", date:today, reference:"DEMO / REFERENCE DATA"
+    },
+    {
+      category:"Other Functional Additive",
+      materialName:"Custom Additive Demo",
+      grade:"OTH-01",
+      supplier:"Demo Custom Supplier India",
+      density:1.10, customProperty1:5, customProperty2:0, customProperty3:0, pricePerKg:125, currency:"INR",
+      sourceType:"Estimated", confidence:"Reference", date:today, reference:"DEMO / REFERENCE DATA"
+    }
+  ].map((m,i)=>({
+    id:"mat-"+(i+1),
+    country:(i%2===0?"India":"China"),
+    manufacturerType:"Manufacturer / Distributor",
+    productName:m.materialName,
+    city:"Demo City",
+    state:"Demo State",
+    website:"",
+    contactInfo:"",
+    productDatasheet:"",
+    priceBasis:"kg",
+    lastPriceUpdate:today,
+    sourceRef:m.reference || "DEMO / REFERENCE DATA",
+    reliabilityStatus:"Reference",
+    userNotes:"",
+    materialGroupFields:MATERIAL_GROUP_FIELDS[m.category] || [],
+    ...m
+  }));
+
+  const suppliers = [];
+  let sid = 1;
+  DEFAULT_MATERIAL_GROUPS.forEach((cat, idx)=>{
+    ["India","China"].forEach(country=>{
+      for(let i=1;i<=5;i++){
+        suppliers.push({
+          id:"sup-"+(sid++),
+          supplierId:"SUP-"+country.slice(0,2).toUpperCase()+"-"+idx+"-"+i,
+          companyName:`${country} ${cat.slice(0,16)} Supplier ${i}`,
+          manufacturerDistributor: i<=3 ? "Manufacturer-listed" : "Distributor-listed",
+          materialCategory:cat,
+          materialGrade:"DEMO-GRADE-"+i,
+          productName:`${cat} Demo Product ${i}`,
+          country,
+          city: country==="India" ? ["Mumbai","Pune","Ahmedabad","Chennai","Delhi"][i-1] : ["Shanghai","Guangzhou","Shenzhen","Ningbo","Qingdao"][i-1],
+          state: country==="India" ? ["MH","MH","GJ","TN","DL"][i-1] : ["SH","GD","GD","ZJ","SD"][i-1],
+          website:"",
+          contactInformation:"",
+          productDatasheet:"",
+          price: "",
+          priceCurrency: country==="China" ? "CNY" : "INR",
+          priceBasis:"kg",
+          moq:"",
+          leadTime:"",
+          lastPriceUpdate:today,
+          sourceReference:"DEMO / REFERENCE DATA — user must verify",
+          reliabilityStatus:"Unverified",
+          userNotes:"DEMO / REFERENCE DATA",
+          sourceType:"Unverified",
+          confidence:"Unverified",
+          date:today
+        });
+      }
+    });
+  });
+
+  const priceHistory = baseMaterials.map(m=>({
+    id:"ph-"+m.id+"-"+today,
+    materialId:m.id,
+    supplier:m.supplier || "",
+    grade:m.grade || "",
+    date:today,
+    INRkg:m.currency==="INR" ? m.pricePerKg : "",
+    USDkg:m.currency==="USD" ? m.pricePerKg : "",
+    CNYkg:m.currency==="CNY" ? m.pricePerKg : "",
+    EURkg:m.currency==="EUR" ? m.pricePerKg : "",
+    sourceType:"Estimated",
+    confidence:"Reference",
+    reference:"DEMO / REFERENCE DATA"
+  }));
+
+  const inventory = baseMaterials.map(m=>({
+    id:"inv-"+m.id,
+    materialId:m.id,
+    currentStockKg:0,
+    minStockKg:0,
+    maxStockKg:0,
+    reservedKg:0,
+    availableKg:0,
+    supplier:m.supplier || "",
+    leadTime:m.leadTime || "",
+    lastPurchasePrice:m.pricePerKg || 0,
+    currentPrice:m.pricePerKg || 0,
+    priceTrend:"Flat",
+    notes:""
+  }));
+
+  const demoFormulation = createBlankFormulation("Demo SMC Formulation", "General-purpose SMC");
+  const preset = presets.find(p=>p.name.includes("General-purpose")) || presets[0];
+  if (preset) {
+    demoFormulation.items.forEach(it=>{
+      const p = preset.composition.find(x=>x.category===it.category);
+      if(p) it.percent = p.percent;
+      const mat = baseMaterials.find(m=>m.category===it.category);
+      if(mat){
+        it.materialId = mat.id;
+        it.supplier = mat.supplier || "";
+        it.grade = mat.grade || "";
+        it.pricePerKg = mat.pricePerKg || 0;
+        it.currency = mat.currency || "INR";
+        it.density = mat.density || 0;
+        it.function = it.category;
+      }
+    });
+  }
+
+  const revisions = [{
+    id:Util.uid("REV"),
+    formulationId:demoFormulation.id,
+    revision:"A",
+    date:today,
+    engineer:"Demo Engineer",
+    changes:"Initial formulation",
+    previousFormulation:null,
+    newFormulation:Util.clone(demoFormulation),
+    reason:"Factory demo data",
+    notes:"DEMO / REFERENCE DATA"
+  }];
+
+  return {
+    appMeta:[{id:"meta", initialized:true, initializedDate:today, note:"DEMO / REFERENCE DATA"}],
+    materials:baseMaterials,
+    suppliers,
+    applications,
+    presets,
+    formulations:[demoFormulation],
+    revisions,
+    priceHistory,
+    experimentalData:[],
+    equations,
+    settings,
+    inventory
+  };
+}
+
+/* -------------------------
+   Data bootstrap
+------------------------- */
+async function loadAllData(){
+  for(const store of DB.stores){
+    State.data[store] = await DB.getAll(store);
+  }
+  const meta = State.data.appMeta[0];
+  if(!meta){
+    const init = createInitialData();
+    for(const store of DB.stores){
+      await DB.bulkPut(store, init[store] || []);
+      State.data[store] = init[store] || [];
+    }
+  }
+  const savedView = localStorage.getItem("smc-current-view");
+  if(savedView) State.currentView = savedView;
+  if(State.data.formulations.length && !State.activeFormulationId){
+    State.activeFormulationId = State.data.formulations[0].id;
+  }
+}
+async function saveAllData(){
+  for(const store of DB.stores){
+    if(Array.isArray(State.data[store])){
+      await DB.clear(store);
+      if(State.data[store].length) await DB.bulkPut(store, State.data[store]);
+    }
+  }
+}
+
+/* -------------------------
+   Formulation factory
+------------------------- */
+function createBlankFormulation(name="New Formulation", application=""){
+  const items = DEFAULT_MATERIAL_GROUPS.map(cat=>({
+    id:Util.uid("FI"),
+    category:cat,
+    ingredient:cat,
+    materialId:"",
+    supplier:"",
+    grade:"",
+    percent:0,
+    kgBatch:0,
+    pricePerKg:0,
+    currency:"INR",
+    costPerKg:0,
+    totalCost:0,
+    density:0,
+    function:cat,
+    logistics:{
+      priceSource:"",
+      priceDate:"",
+      domesticIndiaPrice:0,
+      chinaFOBPrice:0,
+      chinaLandedIndiaPrice:0,
+      freight:0,
+      insurance:0,
+      duty:0,
+      gst:0,
+      other:0,
+      toggles:{freight:true,insurance:true,duty:true,gst:true,other:true}
+    },
+    notes:""
+  }));
+
+  return {
+    id:Util.uid("FORM"),
+    formulationId:Util.uid("F"),
+    name,
+    application,
+    customer:"",
+    partName:"",
+    partNumber:"",
+    revision:"A",
+    createdDate:Util.today(),
+    modifiedDate:Util.today(),
+    engineer:"",
+    plant:"",
+    manufacturingProcess:"SMC compression molding",
+    targetWeightKg:500,
+    notes:"",
+    autoNormalize:false,
+    targetCostPerKg:0,
+    costing:{
+      scrapPercent:0,
+      processLossPercent:0,
+      labourPerKg:0,
+      energyPerKg:0,
+      machinePerKg:0,
+      toolingAmortizationPerKg:0,
+      packagingPerKg:0,
+      overheadPerKg:0,
+      marginPercent:0
+    },
+    targetProperties: PROPERTY_DEFS.reduce((a,p)=>{a[p.key]={target:"",min:"",max:""};return a;},{}),
+    items,
+    history:[],
+    sourceType:"User-entered",
+    confidence:"User-entered",
+    dataNote:"Calculated formulation properties are engineering estimates and should be validated through laboratory testing and production trials."
+  };
+}
+
+/* -------------------------
+   Access helpers
+------------------------- */
+function getSettings(){
+  return State.data.settings[0] || {
+    exchangeRates:{USD:83, INR:1, CNY:11.5, EUR:90},
+    defaultCurrency:"INR",
+    costToggles:{freight:true,insurance:true,duty:true,gst:true,other:true}
+  };
+}
+function getActiveFormulation(){
+  return State.data.formulations.find(f=>f.id===State.activeFormulationId) || State.data.formulations[0] || null;
+}
+function setActiveFormulation(id){
+  State.activeFormulationId = id;
+}
+function getMaterial(id){
+  return State.data.materials.find(m=>m.id===id);
+}
+function getEquation(key){
+  return State.data.equations.find(e=>e.propertyKey===key);
+}
+
+/* -------------------------
+   Currency & cost
+------------------------- */
+const Finance = {
+  toINR(value, currency){
+    const rates = getSettings().exchangeRates || {};
+    if(currency === "INR" || !currency) return Util.num(value);
+    return Util.num(value) * Util.num(rates[currency],1);
+  },
+  fromINR(valueINR, currency){
+    const rates = getSettings().exchangeRates || {};
+    if(currency === "INR" || !currency) return Util.num(valueINR);
+    return Util.num(valueINR) / Util.num(rates[currency],1);
+  },
+  landedCostPerKg(item){
+    const lp = item.logistics || {};
+    const toggles = lp.toggles || {};
+    const base = Util.num(item.pricePerKg);
+    let v = base;
+    if(toggles.freight) v += Util.num(lp.freight);
+    if(toggles.insurance) v += Util.num(lp.insurance);
+    if(toggles.duty) v += Util.num(lp.duty);
+    if(toggles.gst) v += Util.num(lp.gst);
+    if(toggles.other) v += Util.num(lp.other);
+    return v;
+  }
+};
+
+/* -------------------------
+   Property engine
+------------------------- */
+const Calc = {
+  normalizeIfEnabled(form){
+    const sum = form.items.reduce((s,x)=>s+Util.num(x.percent),0);
+    if(form.autoNormalize && sum > 0){
+      form.items.forEach(x=>x.percent = Util.num(x.percent) * 100 / sum);
+    }
+  },
+
+  hydrateItemFromMaterial(item){
+    if(!item.materialId) return;
+    const m = getMaterial(item.materialId);
+    if(!m) return;
+    item.ingredient = m.materialName || item.category;
+    item.supplier = m.supplier || "";
+    item.grade = m.grade || "";
+    item.pricePerKg = Util.num(m.pricePerKg);
+    item.currency = m.currency || "INR";
+    item.density = Util.num(m.density);
+    item.function = item.category;
+    item.logistics = item.logistics || {};
+    item.logistics.priceSource = m.sourceType || "";
+    item.logistics.priceDate = m.lastPriceUpdate || m.date || "";
+  },
+
+  computeFormulation(form){
+    this.normalizeIfEnabled(form);
+
+    const batch = Util.num(form.targetWeightKg, 500);
+    form.items.forEach(item=>{
+      item.kgBatch = batch * Util.num(item.percent)/100;
+      item.costPerKg = Finance.landedCostPerKg(item);
+      item.totalCost = item.kgBatch * item.costPerKg;
+    });
+
+    const totalPercent = form.items.reduce((s,x)=>s+Util.num(x.percent),0);
+    const totalBatchKg = form.items.reduce((s,x)=>s+Util.num(x.kgBatch),0);
+    const totalMaterialCost = form.items.reduce((s,x)=>s+Util.num(x.totalCost),0);
+    const formulationCostPerKg = totalBatchKg>0 ? totalMaterialCost/totalBatchKg : 0;
+
+    const itemWithMat = form.items.map(item=>({
+      ...item,
+      mat: item.materialId ? getMaterial(item.materialId) : null
+    }));
+
+    const props = {};
+
+    // density via inverse rule on weight fractions
+    const weightFractions = itemWithMat.map(it=>Util.num(it.percent)/100);
+    const denom = itemWithMat.reduce((s,it)=>{
+      const rho = Util.num(it.density || (it.mat ? it.mat.density : 0));
+      if(rho>0) return s + (Util.num(it.percent)/100)/rho;
+      return s;
+    },0);
+    props.density = denom>0 ? 1/denom : 0;
+    props.specificGravity = props.density / 1.0;
+
+    const sumByCat = (cats)=> itemWithMat.filter(it=>cats.includes(it.category)).reduce((s,it)=>s+Util.num(it.percent),0);
+    props.fiberContent = sumByCat(["Glass Fiber"]);
+    props.fillerContent = sumByCat(["Calcium Carbonate Filler","Flame Retardant","Conductive / Functional Additive"]);
+    props.resinContent = sumByCat([
+      "Unsaturated Polyester Resin","Low Profile Additive / Thermoplastic Modifier",
+      "Low Shrink / Shrink Control Additive","Toughening / Impact Modifier"
+    ]);
+    props.frLoading = sumByCat(["Flame Retardant"]);
+
+    const weightedProp = (key)=>{
+      let sum = 0;
+      itemWithMat.forEach(it=>{
+        const w = Util.num(it.percent)/100;
+        const src = it.mat || {};
+        const p = Util.num(src[key], 0);
+        sum += w * p;
+      });
+      const eq = getEquation(key);
+      const cf = eq ? Util.num(eq.correctionFactor,1) : 1;
+      return sum * cf;
+    };
+
+    PROPERTY_DEFS.forEach(pd=>{
+      if(props[pd.key] !== undefined) return;
+      if(pd.method==="weighted_average" || pd.method==="supplier-derived" || pd.method==="experimental" || pd.method==="unknown"){
+        props[pd.key] = weightedProp(pd.key);
+      }else if(pd.method==="category_sum"){
+        props[pd.key] = props[pd.key] ?? 0;
+      }
+    });
+
+    // derived processing adjustments from catalyst/accelerator/inhibitor
+    const catPct = sumByCat(["Initiator / Catalyst"]);
+    const accPct = sumByCat(["Accelerator / Promoter"]);
+    const inhPct = sumByCat(["Inhibitor / Retarder"]);
+    props.gelTime = Math.max(0.1, weightedProp("gelTime") - 0.7*catPct - 0.5*accPct + 0.5*inhPct);
+    props.cureTime = Math.max(0.1, weightedProp("cureTime") - 0.4*catPct - 0.3*accPct + 0.2*inhPct);
+    props.thickeningTime = Math.max(0.1, weightedProp("thickeningTime") - 0.3*sumByCat(["Thickening Agent"]));
+
+    // estimated strength boost with glass content
+    const glassFactor = 1 + props.fiberContent/100*0.9;
+    props.tensileStrength *= glassFactor;
+    props.flexuralStrength *= glassFactor;
+    props.tensileModulus *= (1 + props.fiberContent/100*1.2);
+    props.flexuralModulus *= (1 + props.fiberContent/100*1.2);
+    props.impactStrength *= (1 + sumByCat(["Toughening / Impact Modifier"])/100*6);
+
+    // shrinkage reduction from filler/LPA/LSA
+    props.shrinkage = Math.max(0, weightedProp("shrinkage") - props.fillerContent*0.03 - sumByCat(["Low Profile Additive / Thermoplastic Modifier","Low Shrink / Shrink Control Additive"])*0.10);
+
+    // fire index
+    props.LOI = weightedProp("LOI") + props.frLoading*0.2;
+    props.UL94 = weightedProp("UL94") + props.frLoading*0.25;
+
+    // costs
+    const c = form.costing || {};
+    const scrapFactor = 1 + Util.num(c.scrapPercent)/100 + Util.num(c.processLossPercent)/100;
+    const manufacturingCostPerKg = formulationCostPerKg*scrapFactor
+      + Util.num(c.labourPerKg)+Util.num(c.energyPerKg)+Util.num(c.machinePerKg)
+      + Util.num(c.toolingAmortizationPerKg)+Util.num(c.packagingPerKg)+Util.num(c.overheadPerKg);
+    const sellingPricePerKg = manufacturingCostPerKg * (1 + Util.num(c.marginPercent)/100);
+
+    return {
+      totalPercent,
+      totalBatchKg,
+      totalMaterialCost,
+      formulationCostPerKg,
+      manufacturingCostPerKg,
+      sellingPricePerKg,
+      properties:props
+    };
+  },
+
+  alerts(form, results){
+    const alerts = [];
+    const app = State.data.applications.find(a=>a.name===form.application || a.id===form.application);
+
+    if(Math.abs(results.totalPercent - 100) > 0.001){
+      alerts.push({type: Math.abs(results.totalPercent-100)>2 ? "danger":"warn", text:`Total composition = ${Util.fmt(results.totalPercent,2)}%, not 100%.`});
+    }else{
+      alerts.push({type:"ok", text:"Total composition = 100%."});
+    }
+
+    form.items.forEach(it=>{
+      if(!it.materialId) alerts.push({type:"warn", text:`Missing material selection for "${it.category}".`});
+      if(!Util.num(it.pricePerKg) && Util.num(it.percent)>0) alerts.push({type:"warn", text:`Missing price for "${it.category}".`});
+      if(!Util.num(it.density) && Util.num(it.percent)>0) alerts.push({type:"warn", text:`Missing density for "${it.category}".`});
+    });
+
+    if(app){
+      const tr = app.targetRanges || {};
+      const checks = [
+        ["glass", results.properties.fiberContent, "Glass loading"],
+        ["filler", results.properties.fillerContent, "Filler loading"],
+        ["resin", results.properties.resinContent, "Resin loading"],
+        ["catalyst", form.items.filter(x=>x.category==="Initiator / Catalyst").reduce((s,x)=>s+Util.num(x.percent),0), "Catalyst"],
+        ["accelerator", form.items.filter(x=>x.category==="Accelerator / Promoter").reduce((s,x)=>s+Util.num(x.percent),0), "Accelerator"],
+        ["thickener", form.items.filter(x=>x.category==="Thickening Agent").reduce((s,x)=>s+Util.num(x.percent),0), "Thickener"],
+        ["pigment", form.items.filter(x=>x.category==="Pigment / Colouring Agent").reduce((s,x)=>s+Util.num(x.percent),0), "Pigment"],
+        ["fr", results.properties.frLoading, "Flame retardant loading"]
+      ];
+      checks.forEach(([k,v,lbl])=>{
+        if(tr[k]){
+          const [mn,mx] = tr[k];
+          if(v<mn || v>mx) alerts.push({type:"warn", text:`${lbl} ${Util.fmt(v,2)} is outside preset target range ${mn}–${mx}.`});
+        }
+      });
+    }
+
+    if(form.targetCostPerKg && results.formulationCostPerKg > Util.num(form.targetCostPerKg)){
+      alerts.push({type:"warn", text:`Formulation cost/kg exceeds target (${Util.fmt(results.formulationCostPerKg)} > ${Util.fmt(form.targetCostPerKg)}).`});
+    }
+
+    PROPERTY_DEFS.forEach(pd=>{
+      const target = form.targetProperties?.[pd.key];
+      if(!target) return;
+      const val = results.properties[pd.key];
+      if(target.min!=="" && val < Util.num(target.min)) alerts.push({type:"warn", text:`${pd.label} below target minimum.`});
+      if(target.max!=="" && val > Util.num(target.max)) alerts.push({type:"warn", text:`${pd.label} above target maximum.`});
+    });
+
+    return alerts;
+  },
+
+  explainProperty(form, propertyKey){
+    const results = this.computeFormulation(form);
+    const pd = PROPERTY_DEFS.find(p=>p.key===propertyKey);
+    const eq = getEquation(propertyKey);
+    let body = `
+      <div class="card">
+        <h3>${pd ? pd.label : propertyKey}</h3>
+        <p><b>Calculation method:</b> ${(eq?.method || pd?.method || "Unknown")}</p>
+        <p><b>Equation:</b> <span class="mono">${(eq?.equation || pd?.equation || "-")}</span></p>
+        <p><b>Correction factor:</b> ${Util.fmt(eq?.correctionFactor ?? 1,4)}</p>
+        <p><b>Result:</b> ${Util.fmt(results.properties[propertyKey],4)} ${pd?.unit || ""}</p>
+        <div class="hr"></div>
+        <p><b>Inputs:</b></p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Ingredient</th><th>%</th><th>Material</th><th>Property Value</th></tr></thead>
+          <tbody>
+    `;
+    form.items.forEach(it=>{
+      const m = getMaterial(it.materialId) || {};
+      body += `<tr>
+        <td>${it.category}</td>
+        <td>${Util.fmt(it.percent,3)}</td>
+        <td>${m.materialName || "-"}</td>
+        <td>${m[propertyKey] ?? "-"}</td>
+      </tr>`;
+    });
+    body += `</tbody></table></div>
+      <div class="hr"></div>
+      <p><b>Assumptions:</b> Theoretical estimate only. Not a certified finished-part property.</p>
+      <p><b>Data quality:</b> Material properties may be manufacturer-listed, supplier-listed, estimated, experimental, or user-entered. Verify before production use.</p>
+      </div>`;
+    return body;
+  }
+};
+
+/* -------------------------
+   Chart engine: canvas only
+------------------------- */
+const Charts = {
+  clear(c){
+    const ctx = c.getContext('2d');
+    ctx.clearRect(0,0,c.width,c.height);
+    return ctx;
+  },
+  fitCanvas(canvas){
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.max(320, Math.floor(rect.width*dpr));
+    canvas.height = Math.max(220, Math.floor((rect.height || 260)*dpr));
+  },
+  donut(canvas, labels, values, colors, title="Composition"){
+    this.fitCanvas(canvas);
+    const ctx = this.clear(canvas);
+    const w = canvas.width, h = canvas.height;
+    const cx = w*0.28, cy = h*0.5, r = Math.min(w,h)*0.28, ir = r*0.55;
+    const total = values.reduce((a,b)=>a+b,0) || 1;
+    let a0 = -Math.PI/2;
+    values.forEach((v,i)=>{
+      const a1 = a0 + (v/total)*Math.PI*2;
+      ctx.beginPath();
+      ctx.moveTo(cx,cy);
+      ctx.arc(cx,cy,r,a0,a1);
+      ctx.closePath();
+      ctx.fillStyle = colors[i%colors.length];
+      ctx.fill();
+      a0 = a1;
+    });
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.beginPath(); ctx.arc(cx,cy,ir,0,Math.PI*2); ctx.fill();
+    ctx.globalCompositeOperation = 'source-over';
+
+    ctx.fillStyle = '#e8eef4';
+    ctx.font = `${Math.max(16,w*0.02)}px Segoe UI`;
+    ctx.fillText(title, w*0.04, h*0.08);
+    ctx.font = `${Math.max(14,w*0.018)}px Segoe UI`;
+    ctx.fillText(`Total ${Util.fmt(total,2)}%`, cx-r*0.45, cy+4);
+
+    let lx = w*0.58, ly = h*0.15;
+    labels.forEach((lab,i)=>{
+      ctx.fillStyle = colors[i%colors.length];
+      ctx.fillRect(lx, ly-10, 14, 14);
+      ctx.fillStyle = '#dce7f1';
+      ctx.font = `${Math.max(12,w*0.015)}px Segoe UI`;
+      ctx.fillText(`${lab}: ${Util.fmt(values[i],2)}`, lx+22, ly+2);
+      ly += 24;
+      if(ly > h-20){ ly = h*0.15; lx += 220; }
+    });
+  },
+  bars(canvas, labels, values, title="Bar Chart", color='#3aa3ff'){
+    this.fitCanvas(canvas);
+    const ctx = this.clear(canvas);
+    const w = canvas.width, h = canvas.height;
+    const pad = {l:50,r:20,t:40,b:80};
+    const max = Math.max(...values,1);
+    ctx.fillStyle = '#e8eef4';
+    ctx.font = `${Math.max(15,w*0.02)}px Segoe UI`;
+    ctx.fillText(title, pad.l, 26);
+
+    ctx.strokeStyle = '#31506b';
+    ctx.lineWidth = 1;
+    for(let i=0;i<=5;i++){
+      const y = pad.t + (h-pad.t-pad.b)*i/5;
+      ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(w-pad.r,y); ctx.stroke();
+      const val = max*(1-i/5);
+      ctx.fillStyle = '#9fb4c6';
+      ctx.font = `${Math.max(11,w*0.012)}px Segoe UI`;
+      ctx.fillText(Util.fmt(val,1), 5, y+4);
+    }
+
+    const bw = (w-pad.l-pad.r)/Math.max(labels.length,1)*0.68;
+    labels.forEach((lab,i)=>{
+      const x = pad.l + (i+0.16)*(w-pad.l-pad.r)/labels.length;
+      const bh = ((values[i]||0)/max)*(h-pad.t-pad.b);
+      const y = h-pad.b-bh;
+      ctx.fillStyle = color;
+      ctx.fillRect(x,y,bw,bh);
+      ctx.fillStyle = '#d9e5ef';
+      ctx.save();
+      ctx.translate(x+4,h-pad.b+12);
+      ctx.rotate(-0.45);
+      ctx.font = `${Math.max(10,w*0.011)}px Segoe UI`;
+      ctx.fillText(lab,0,0);
+      ctx.restore();
+    });
+  },
+  line(canvas, labels, values, title="Line Chart", color='#4ad29f'){
+    this.fitCanvas(canvas);
+    const ctx = this.clear(canvas);
+    const w = canvas.width, h = canvas.height;
+    const pad = {l:50,r:20,t:40,b:60};
+    const max = Math.max(...values,1), min = Math.min(...values,0);
+    const span = Math.max(max-min,1e-9);
+    ctx.fillStyle = '#e8eef4';
+    ctx.font = `${Math.max(15,w*0.02)}px Segoe UI`;
+    ctx.fillText(title, pad.l, 26);
+
+    ctx.strokeStyle = '#31506b';
+    for(let i=0;i<=5;i++){
+      const y = pad.t + (h-pad.t-pad.b)*i/5;
+      ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(w-pad.r,y); ctx.stroke();
+      const val = max - span*i/5;
+      ctx.fillStyle = '#9fb4c6';
+      ctx.font = `${Math.max(11,w*0.012)}px Segoe UI`;
+      ctx.fillText(Util.fmt(val,1), 5, y+4);
+    }
+
+    const pts = labels.map((lab,i)=>{
+      const x = pad.l + (labels.length===1?0:(i*(w-pad.l-pad.r)/(labels.length-1)));
+      const y = h-pad.b - ((values[i]-min)/span)*(h-pad.t-pad.b);
+      return [x,y];
+    });
+
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    pts.forEach((p,i)=> i===0 ? ctx.moveTo(p[0],p[1]) : ctx.lineTo(p[0],p[1]));
+    ctx.stroke();
+
+    pts.forEach((p,i)=>{
+      ctx.fillStyle = color;
+      ctx.beginPath(); ctx.arc(p[0],p[1],4,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#d9e5ef';
+      ctx.font = `${Math.max(10,w*0.011)}px Segoe UI`;
+      ctx.fillText(labels[i], p[0]-8, h-pad.b+16);
+    });
+  },
+  radarFallback(canvas, metrics, current, targetMin, targetMax, title="Property Comparison"){
+    this.fitCanvas(canvas);
+    const ctx = this.clear(canvas);
+    const w = canvas.width, h = canvas.height;
+    ctx.fillStyle = '#e8eef4';
+    ctx.font = `${Math.max(15,w*0.02)}px Segoe UI`;
+    ctx.fillText(title, 16, 24);
+
+    const rows = metrics.map((m,i)=>{
+      const c = current[i] ?? 0;
+      const mn = targetMin[i] ?? 0;
+      const mx = targetMax[i] ?? Math.max(c,1);
+      const norm = mx>0 ? Math.min(1, c/mx) : 0;
+      return {m,c,mn,mx,norm};
+    });
+
+    const x0 = 16, y0 = 50, rowH = 28, maxW = w - 240;
+    rows.forEach((r,i)=>{
+      const y = y0 + i*rowH;
+      ctx.fillStyle = '#b9c9d6';
+      ctx.font = `${Math.max(12,w*0.013)}px Segoe UI`;
+      ctx.fillText(r.m, x0, y+14);
+      ctx.strokeStyle = '#31506b';
+      ctx.strokeRect(180,y,maxW,14);
+      ctx.fillStyle = '#3aa3ff';
+      ctx.fillRect(180,y,maxW*r.norm,14);
+      ctx.fillStyle = '#e8eef4';
+      ctx.fillText(`${Util.fmt(r.c,2)} [${Util.fmt(r.mn,2)}-${Util.fmt(r.mx,2)}]`, 190+maxW+10, y+12);
+    });
+  }
+};
+
+/* -------------------------
+   UI
+------------------------- */
+const UI = {
+  initNav(){
+    const nav = document.getElementById('nav');
+    nav.innerHTML = '';
+    NAV_ITEMS.forEach(name=>{
+      const b = document.createElement('button');
+      b.textContent = name;
+      b.className = name===State.currentView ? 'active' : '';
+      b.onclick = ()=>{ State.currentView = name; localStorage.setItem("smc-current-view",name); UI.render(); };
+      nav.appendChild(b);
+    });
+  },
+
+  render(){
+    this.initNav();
+    const view = document.getElementById('appView');
+    const f = getActiveFormulation();
+    if(!f && State.data.formulations.length) State.activeFormulationId = State.data.formulations[0].id;
+
+    switch(State.currentView){
+      case "Dashboard": view.innerHTML = this.viewDashboard(); break;
+      case "New Formulation": view.innerHTML = this.viewNewFormulation(); break;
+      case "Formulations": view.innerHTML = this.viewFormulations(); break;
+      case "Materials": view.innerHTML = this.viewMaterials(); break;
+      case "Suppliers": view.innerHTML = this.viewSuppliers(); break;
+      case "Applications": view.innerHTML = this.viewApplications(); break;
+      case "Properties": view.innerHTML = this.viewProperties(); break;
+      case "Costing": view.innerHTML = this.viewCosting(); break;
+      case "Batch Calculator": view.innerHTML = this.viewBatchCalculator(); break;
+      case "What-if Analysis": view.innerHTML = this.viewWhatIf(); break;
+      case "Comparison": view.innerHTML = this.viewComparison(); break;
+      case "Experimental Data": view.innerHTML = this.viewExperimental(); break;
+      case "Database": view.innerHTML = this.viewDatabase(); break;
+      case "Reports": view.innerHTML = this.viewReports(); break;
+      case "Settings": view.innerHTML = this.viewSettings(); break;
+      default: view.innerHTML = this.viewDashboard();
+    }
+    this.bindView();
+  },
+
+  modal(title, html){
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalBody').innerHTML = html;
+    document.getElementById('modal').classList.add('show');
+  },
+  closeModal(){
+    document.getElementById('modal').classList.remove('show');
+  },
+
+  activeResults(){
+    const f = getActiveFormulation();
+    return f ? Calc.computeFormulation(f) : null;
+  },
+
+  viewDashboard(){
+    const f = getActiveFormulation();
+    if(!f) return `<div class="card"><h3>No formulation</h3><p>Create a new formulation to begin.</p></div>`;
+    const r = Calc.computeFormulation(f);
+    const alerts = Calc.alerts(f,r);
+    const app = State.data.applications.find(a=>a.name===f.application || a.id===f.application);
+
+    const statusFor = (key,val)=>{
+      const tp = f.targetProperties?.[key] || {};
+      if(tp.min!=="" && val < Util.num(tp.min)) return ["Below target","danger"];
+      if(tp.max!=="" && val > Util.num(tp.max)) return ["Above target","warn"];
+      if((tp.min!=="" || tp.max!=="")) return ["Within target","ok"];
+      return ["No target","subtle"];
+    };
+    const [sFM,cFM]=statusFor("flexuralModulus",r.properties.flexuralModulus);
+    const [sTS,cTS]=statusFor("tensileStrength",r.properties.tensileStrength);
+    const [sHDT,cHDT]=statusFor("HDT",r.properties.HDT);
+
+    return `
+      <div class="layout">
+        <div class="card">
+          <div class="section-title">
+            <div>
+              <h3 style="margin:0">${f.name}</h3>
+              <div class="subtle">Formulation ID: ${f.formulationId} | Revision: ${f.revision} | Application: ${f.application || "-"}</div>
+            </div>
+            <div class="pill-row">
+              <span class="badge">Created ${f.createdDate}</span>
+              <span class="badge">Modified ${f.modifiedDate}</span>
+              <span class="badge">Engineer ${f.engineer || "-"}</span>
+            </div>
+          </div>
+          <div class="note">Calculated formulation properties are engineering estimates and should be validated through laboratory testing and production trials.</div>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi"><div class="label">Total Formulation %</div><div class="value">${Util.fmt(r.totalPercent,2)}%</div><div class="status ${Math.abs(r.totalPercent-100)<0.001?'ok':'warn'}">${Math.abs(r.totalPercent-100)<0.001?'On target':'Check composition'}</div></div>
+          <div class="kpi"><div class="label">Estimated Cost/kg</div><div class="value">₹ ${Util.fmt(r.formulationCostPerKg,2)}</div><div class="status">Material cost basis</div></div>
+          <div class="kpi"><div class="label">Density</div><div class="value">${Util.fmt(r.properties.density,3)} g/cm³</div><div class="status">Theoretical estimate</div></div>
+          <div class="kpi"><div class="label">Glass %</div><div class="value">${Util.fmt(r.properties.fiberContent,2)}%</div><div class="status">${app ? `Preset target ${app.targetRanges.glass[0]}–${app.targetRanges.glass[1]}%` : ''}</div></div>
+          <div class="kpi"><div class="label">Filler %</div><div class="value">${Util.fmt(r.properties.fillerContent,2)}%</div><div class="status">${app ? `Preset target ${app.targetRanges.filler[0]}–${app.targetRanges.filler[1]}%` : ''}</div></div>
+          <div class="kpi"><div class="label">Resin %</div><div class="value">${Util.fmt(r.properties.resinContent,2)}%</div><div class="status">${app ? `Preset target ${app.targetRanges.resin[0]}–${app.targetRanges.resin[1]}%` : ''}</div></div>
+          <div class="kpi"><div class="label">Flexural Modulus</div><div class="value">${Util.fmt(r.properties.flexuralModulus,2)} GPa</div><div class="status ${cFM}">${sFM}</div></div>
+          <div class="kpi"><div class="label">Cycle Time</div><div class="value">${Util.fmt(r.properties.cycleTime,1)} s</div><div class="status">Theoretical estimate</div></div>
+        </div>
+
+        <div class="split">
+          <div class="card">
+            <div class="section-title">
+              <h3>Composition and Cost Visualization</h3>
+              <div class="toolbar">
+                <button class="btn secondary small" id="btnOpenFormulationEditor">Open Formulation Editor</button>
+              </div>
+            </div>
+            <div class="grid-2">
+              <canvas id="chartComposition" style="height:300px"></canvas>
+              <canvas id="chartCostContribution" style="height:300px"></canvas>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Alerts</h3>
+            <div class="alert-list">
+              ${alerts.map(a=>`<div class="alert ${a.type}">${a.text}</div>`).join('')}
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3>Current Formulation KPI Dashboard</h3>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Property</th><th>Current</th><th>Target</th><th>Min</th><th>Max</th><th>Status</th><th>Audit</th></tr></thead>
+                <tbody>
+                ${[
+                  "density","tensileStrength","flexuralStrength","flexuralModulus","HDT","shrinkage","gelTime","viscosity"
+                ].map(key=>{
+                  const pd = PROPERTY_DEFS.find(x=>x.key===key);
+                  const tp = f.targetProperties[key] || {};
+                  const val = r.properties[key];
+                  const [st,cls] = statusFor(key,val);
+                  return `<tr>
+                    <td>${pd.label}</td>
+                    <td>${Util.fmt(val,3)} ${pd.unit}</td>
+                    <td>${tp.target || "-"}</td>
+                    <td>${tp.min || "-"}</td>
+                    <td>${tp.max || "-"}</td>
+                    <td class="${cls}">${st}</td>
+                    <td><button class="btn secondary small" onclick="UI.showCalcExplain('${key}')">How was this calculated?</button></td>
+                  </tr>`;
+                }).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Normalized Property Visualization</h3>
+            <canvas id="chartPropertyCompare" style="height:360px"></canvas>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Recent Formulations</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Name</th><th>ID</th><th>Revision</th><th>Application</th><th>Modified</th><th>Action</th></tr></thead>
+              <tbody>
+                ${State.data.formulations.slice().sort((a,b)=>b.modifiedDate.localeCompare(a.modifiedDate)).slice(0,8).map(x=>`
+                <tr>
+                  <td>${x.name}</td>
+                  <td>${x.formulationId}</td>
+                  <td>${x.revision}</td>
+                  <td>${x.application || "-"}</td>
+                  <td>${x.modifiedDate}</td>
+                  <td><button class="btn secondary small" onclick="Actions.openFormulation('${x.id}')">Open</button></td>
+                </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    `;
+  },
+
+  viewNewFormulation(){
+    return `
+      <div class="layout">
+        <div class="card">
+          <h3>Create New Formulation</h3>
+          <div class="form-grid">
+            <label>Formulation Name<input id="nf_name" value="New SMC Formulation"></label>
+            <label>Application
+              <select id="nf_app">
+                <option value="">Select</option>
+                ${State.data.applications.map(a=>`<option value="${a.name}">${a.name}</option>`).join('')}
+              </select>
+            </label>
+            <label>Engineer<input id="nf_engineer" value=""></label>
+            <label>Plant<input id="nf_plant" value=""></label>
+          </div>
+          <div class="hr"></div>
+          <div class="toolbar">
+            <button class="btn good" id="createBlank">Blank Formulation</button>
+            <button class="btn secondary" id="createFromPreset">Create from Preset</button>
+            <button class="btn secondary" id="duplicateExisting">Duplicate Existing Formulation</button>
+            <button class="btn secondary" id="createFromRevision">Create from Previous Revision</button>
+            <button class="btn secondary" id="importFormulationBtn">Import Formulation</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Available Presets</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Preset</th><th>Application</th><th>Type</th><th>Reference</th><th>Action</th></tr></thead>
+              <tbody>
+                ${State.data.presets.map(p=>{
+                  const app = State.data.applications.find(a=>a.id===p.applicationId);
+                  return `<tr>
+                    <td>${p.name}</td>
+                    <td>${app?.name || "-"}</td>
+                    <td>Starting formulation / engineering preset</td>
+                    <td>${p.reference || "-"}</td>
+                    <td><button class="btn secondary small" onclick="Actions.previewPreset('${p.id}')">Preview</button></td>
+                  </tr>`;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    `;
+  },
+
+  viewFormulations(){
+    const f = getActiveFormulation();
+    if(!f) return `<div class="card">No formulation available.</div>`;
+    const r = Calc.computeFormulation(f);
+
+    return `
+      <div class="layout">
+        <div class="card">
+          <div class="section-title">
+            <div>
+              <h3>Formulation Editor</h3>
+              <div class="subtle">Inline editing updates composition, kg/batch, cost, density and theoretical properties dynamically.</div>
+            </div>
+            <div class="toolbar">
+              <button class="btn secondary" onclick="Actions.saveActiveFormulation()">Save Formulation</button>
+              <button class="btn secondary" onclick="Actions.duplicateFormulation('${f.id}')">Duplicate</button>
+              <button class="btn secondary" onclick="Actions.newRevision('${f.id}')">New Revision</button>
+              <button class="btn danger" onclick="Actions.deleteFormulation('${f.id}')">Delete</button>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <label>Formulation ID<input id="f_formulationId" value="${f.formulationId}"></label>
+            <label>Formulation Name<input id="f_name" value="${f.name}"></label>
+            <label>Application
+              <select id="f_application">
+                <option value="">Select</option>
+                ${State.data.applications.map(a=>`<option value="${a.name}" ${a.name===f.application?'selected':''}>${a.name}</option>`).join('')}
+              </select>
+            </label>
+            <label>Customer<input id="f_customer" value="${f.customer || ''}"></label>
+
+            <label>Part Name<input id="f_partName" value="${f.partName || ''}"></label>
+            <label>Part Number<input id="f_partNumber" value="${f.partNumber || ''}"></label>
+            <label>Revision<input id="f_revision" value="${f.revision || ''}"></label>
+            <label>Engineer<input id="f_engineer" value="${f.engineer || ''}"></label>
+
+            <label>Plant<input id="f_plant" value="${f.plant || ''}"></label>
+            <label>Manufacturing Process<input id="f_process" value="${f.manufacturingProcess || ''}"></label>
+            <label>Target Weight (kg)<input id="f_targetWeightKg" type="number" step="0.01" value="${f.targetWeightKg}"></label>
+            <label>Auto-normalize
+              <select id="f_autoNormalize">
+                <option value="false" ${!f.autoNormalize?'selected':''}>Off</option>
+                <option value="true" ${f.autoNormalize?'selected':''}>On</option>
+              </select>
+            </label>
+          </div>
+          <label style="margin-top:10px">Notes<textarea id="f_notes">${f.notes || ''}</textarea></label>
+        </div>
+
+        <div class="card">
+          <div class="section-title">
+            <h3>Editable Formulation Table</h3>
+            <div class="toolbar">
+              <button class="btn secondary small" onclick="Actions.addCustomIngredient('${f.id}')">Add Material Beyond 19 Categories</button>
+              <button class="btn secondary small" onclick="Actions.applyPresetToActive()">Apply Preset</button>
+              <button class="btn secondary small" onclick="Actions.exportBatchSheet()">Export Batch Sheet</button>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table id="formTable">
+              <thead>
+                <tr>
+                  <th>Ingredient</th>
+                  <th>Material</th>
+                  <th>Supplier</th>
+                  <th>Grade</th>
+                  <th>%</th>
+                  <th>kg/batch</th>
+                  <th>Price/kg</th>
+                  <th>Cost/kg</th>
+                  <th>Total Cost</th>
+                  <th>Density</th>
+                  <th>Function</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${f.items.map((it,idx)=>{
+                  const mats = State.data.materials.filter(m=>m.category===it.category || (it.custom && m.category===it.category));
+                  return `<tr>
+                    <td>${it.category}</td>
+                    <td>
+                      <select data-row="${idx}" data-field="materialId" class="fi">
+                        <option value="">Select material</option>
+                        ${mats.map(m=>`<option value="${m.id}" ${m.id===it.materialId?'selected':''}>${m.materialName || m.productName}</option>`).join('')}
+                      </select>
+                    </td>
+                    <td><input data-row="${idx}" data-field="supplier" class="fi" value="${it.supplier || ''}"></td>
+                    <td><input data-row="${idx}" data-field="grade" class="fi" value="${it.grade || ''}"></td>
+                    <td><input data-row="${idx}" data-field="percent" class="fi" type="number" step="0.001" value="${Util.num(it.percent)}"></td>
+                    <td>${Util.fmt(it.kgBatch,3)}</td>
+                    <td><input data-row="${idx}" data-field="pricePerKg" class="fi" type="number" step="0.0001" value="${Util.num(it.pricePerKg)}"></td>
+                    <td>${Util.fmt(it.costPerKg,3)}</td>
+                    <td>${Util.fmt(it.totalCost,2)}</td>
+                    <td><input data-row="${idx}" data-field="density" class="fi" type="number" step="0.0001" value="${Util.num(it.density)}"></td>
+                    <td><input data-row="${idx}" data-field="function" class="fi" value="${it.function || ''}"></td>
+                    <td>
+                      <div class="toolbar">
+                        <button class="btn secondary small" onclick="Actions.editLogistics('${f.id}','${it.id}')">Cost</button>
+                        <button class="btn secondary small" onclick="Actions.openMaterialAnalysis('${it.materialId}')">Material</button>
+                        <button class="btn danger small" onclick="Actions.removeIngredient('${f.id}','${it.id}')">X</button>
+                      </div>
+                    </td>
+                  </tr>`;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="hr"></div>
+          <div class="grid-4">
+            <div class="kpi"><div class="label">Total formulation percentage</div><div class="value">${Util.fmt(r.totalPercent,2)}%</div></div>
+            <div class="kpi"><div class="label">Batch weight</div><div class="value">${Util.fmt(r.totalBatchKg,2)} kg</div></div>
+            <div class="kpi"><div class="label">Material cost/kg</div><div class="value">₹ ${Util.fmt(r.formulationCostPerKg,2)}</div></div>
+            <div class="kpi"><div class="label">Total material cost</div><div class="value">₹ ${Util.fmt(r.totalMaterialCost,2)}</div></div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3>Immediate Combined Theoretical Properties</h3>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Property</th><th>Value</th><th>Method</th><th>Audit</th></tr></thead>
+                <tbody>
+                  ${PROPERTY_DEFS.map(pd=>{
+                    const eq = getEquation(pd.key);
+                    return `<tr>
+                      <td>${pd.label}</td>
+                      <td>${Util.fmt(r.properties[pd.key],4)} ${pd.unit}</td>
+                      <td>${eq?.method || pd.method}</td>
+                      <td><button class="btn secondary small" onclick="UI.showCalcExplain('${pd.key}')">How was this calculated?</button></td>
+                    </tr>`;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Revision History</h3>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Revision</th><th>Date</th><th>Engineer</th><th>Reason</th><th>Changes</th></tr></thead>
+                <tbody>
+                  ${State.data.revisions.filter(rv=>rv.formulationId===f.id).map(rv=>`
+                    <tr>
+                      <td>${rv.revision}</td>
+                      <td>${rv.date}</td>
+                      <td>${rv.engineer || '-'}</td>
+                      <td>${rv.reason || '-'}</td>
+                      <td>${rv.changes || '-'}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  },
+
+  viewMaterials(){
+    return `
+      <div class="layout">
+        <div class="card">
+          <div class="section-title">
+            <h3>Materials Database</h3>
+            <div class="toolbar">
+              <button class="btn good" onclick="Actions.addMaterial()">Add Material</button>
+              <button class="btn secondary" onclick="Actions.exportMaterials()">Export Materials</button>
+            </div>
+          </div>
+          <div class="note">Sample records are marked DEMO / REFERENCE DATA. Do not treat demo values as certified engineering data.</div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Category</th><th>Material Name</th><th>Grade</th><th>Supplier</th><th>Density</th><th>Price/kg</th><th>Currency</th><th>Source</th><th>Confidence</th><th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+              ${State.data.materials.map(m=>`
+                <tr>
+                  <td>${m.category}</td>
+                  <td>${m.materialName || '-'}</td>
+                  <td>${m.grade || '-'}</td>
+                  <td>${m.supplier || '-'}</td>
+                  <td>${m.density ?? '-'}</td>
+                  <td>${m.pricePerKg ?? '-'}</td>
+                  <td>${m.currency || '-'}</td>
+                  <td>${m.sourceType || '-'}</td>
+                  <td>${m.confidence || '-'}</td>
+                  <td>
+                    <div class="toolbar">
+                      <button class="btn secondary small" onclick="Actions.openMaterialEditor('${m.id}')">Edit</button>
+                      <button class="btn secondary small" onclick="Actions.openMaterialAnalysis('${m.id}')">Analyze</button>
+                      <button class="btn danger small" onclick="Actions.deleteMaterial('${m.id}')">Delete</button>
+                    </div>
+                  </td>
+                </tr>
+              `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    `;
+  },
+
+  viewSuppliers(){
+    return `
+      <div class="layout">
+        <div class="card">
+          <div class="section-title">
+            <h3>Supplier Database</h3>
+            <div class="toolbar">
+              <button class="btn good" onclick="Actions.addSupplier()">Add Supplier</button>
+              <button class="btn secondary" onclick="Actions.exportSuppliers()">Export Suppliers</button>
+            </div>
+          </div>
+          <div class="note">Supplier dataset is initialized as DEMO / REFERENCE DATA. Verification status is explicit and user-editable. No fabricated certified claims are made.</div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Supplier ID</th><th>Company</th><th>Type</th><th>Category</th><th>Grade</th><th>Country</th><th>City</th><th>Price</th><th>Verification</th><th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${State.data.suppliers.map(s=>`
+                  <tr>
+                    <td>${s.supplierId}</td>
+                    <td>${s.companyName}</td>
+                    <td>${s.manufacturerDistributor}</td>
+                    <td>${s.materialCategory}</td>
+                    <td>${s.materialGrade || '-'}</td>
+                    <td>${s.country}</td>
+                    <td>${s.city || '-'}</td>
+                    <td>${s.price || '-'}</td>
+                    <td>${s.reliabilityStatus || '-'}</td>
+                    <td>
+                      <div class="toolbar">
+                        <button class="btn secondary small" onclick="Actions.openSupplierEditor('${s.id}')">Edit</button>
+                        <button class="btn danger small" onclick="Actions.deleteSupplier('${s.id}')">Delete</button>
+                      </div>
+                    </td>
+                  </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    `;
+  },
+
+  viewApplications(){
+    return `
+      <div class="layout">
+        <div class="card">
+          <div class="section-title">
+            <h3>Application Presets and Target Ranges</h3>
+            <div class="toolbar">
+              <button class="btn good" onclick="Actions.addApplication()">Add Application</button>
+              <button class="btn secondary" onclick="Actions.addPreset()">Add Preset</button>
+            </div>
+          </div>
+          <div class="note">These are starting formulation / engineering presets only. They are editable and not universal standards.</div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Application</th><th>Resin</th><th>Filler</th><th>Glass</th><th>LPA</th><th>Catalyst</th><th>Accelerator</th><th>Thickener</th><th>Pigment</th><th>FR</th><th>Other</th><th>Action</th></tr>
+              </thead>
+              <tbody>
+                ${State.data.applications.map(a=>{
+                  const t = a.targetRanges || {};
+                  const fmtR = (x)=>x?`${x[0]}–${x[1]}`:'-';
+                  return `<tr>
+                    <td>${a.name}</td>
+                    <td>${fmtR(t.resin)}</td>
+                    <td>${fmtR(t.filler)}</td>
+                    <td>${fmtR(t.glass)}</td>
+                    <td>${fmtR(t.lpa)}</td>
+                    <td>${fmtR(t.catalyst)}</td>
+                    <td>${fmtR(t.accelerator)}</td>
+                    <td>${fmtR(t.thickener)}</td>
+                    <td>${fmtR(t.pigment)}</td>
+                    <td>${fmtR(t.fr)}</td>
+                    <td>${fmtR(t.other)}</td>
+                    <td><button class="btn secondary small" onclick="Actions.openApplicationEditor('${a.id}')">Edit</button></td>
+                  </tr>`;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    `;
+  },
+
+  viewProperties(){
+    const f = getActiveFormulation();
+    if(!f) return `<div class="card">No active formulation.</div>`;
+    const r = Calc.computeFormulation(f);
+    const categories = [...new Set(PROPERTY_DEFS.map(p=>p.category))];
+    return `
+      <div class="layout">
+        <div class="card">
+          <div class="section-title">
+            <h3>Property Models and Combined Formulation Properties</h3>
+            <div class="toolbar">
+              <button class="btn secondary" onclick="Actions.editPropertyModels()">Property Model Editor</button>
+              <button class="btn secondary" onclick="Actions.modelCalibration()">Model Calibration</button>
+            </div>
+          </div>
+          <div class="note">Theoretical formulation properties are not laboratory results. Each property includes method, equation and editable correction factor.</div>
+        </div>
+
+        ${categories.map(cat=>`
+          <div class="card">
+            <h3>${cat}</h3>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Property</th><th>Value</th><th>Unit</th><th>Method</th><th>Equation</th><th>Correction</th><th>Audit</th></tr></thead>
+                <tbody>
+                ${PROPERTY_DEFS.filter(p=>p.category===cat).map(pd=>{
+                  const eq = getEquation(pd.key) || {};
+                  return `<tr>
+                    <td>${pd.label}</td>
+                    <td>${Util.fmt(r.properties[pd.key],4)}</td>
+                    <td>${pd.unit}</td>
+                    <td>${eq.method || pd.method}</td>
+                    <td class="mono">${eq.equation || pd.equation}</td>
+                    <td>${Util.fmt(eq.correctionFactor ?? 1,4)}</td>
+                    <td><button class="btn secondary small" onclick="UI.showCalcExplain('${pd.key}')">How was this calculated?</button></td>
+                  </tr>`;
+                }).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>`).join('')}
+      </div>
+    `;
+  },
+
+  viewCosting(){
+    const f = getActiveFormulation();
+    if(!f) return `<div class="card">No active formulation.</div>`;
+    const r = Calc.computeFormulation(f);
+    const c = f.costing || {};
+    return `
+      <div class="layout">
+        <div class="card">
+          <h3>Cost Calculation</h3>
+          <div class="form-grid">
+            <label>Target Cost/kg<input id="c_targetCost" type="number" step="0.01" value="${f.targetCostPerKg || 0}"></label>
+            <label>Scrap %<input id="c_scrap" type="number" step="0.01" value="${c.scrapPercent || 0}"></label>
+            <label>Process Loss %<input id="c_processLoss" type="number" step="0.01" value="${c.processLossPercent || 0}"></label>
+            <label>Labour /kg<input id="c_labour" type="number" step="0.01" value="${c.labourPerKg || 0}"></label>
+            <label>Energy /kg<input id="c_energy" type="number" step="0.01" value="${c.energyPerKg || 0}"></label>
+            <label>Machine Cost /kg<input id="c_machine" type="number" step="0.01" value="${c.machinePerKg || 0}"></label>
+            <label>Tooling Amortization /kg<input id="c_tooling" type="number" step="0.01" value="${c.toolingAmortizationPerKg || 0}"></label>
+            <label>Packaging /kg<input id="c_packaging" type="number" step="0.01" value="${c.packagingPerKg || 0}"></label>
+            <label>Overhead /kg<input id="c_overhead" type="number" step="0.01" value="${c.overheadPerKg || 0}"></label>
+            <label>Margin %<input id="c_margin" type="number" step="0.01" value="${c.marginPercent || 0}"></label>
+          </div>
+          <div class="sticky-actions">
+            <button class="btn good" onclick="Actions.saveCosting()">Save Cost Inputs</button>
+          </div>
+        </div>
+
+        <div class="grid-4">
+          <div class="kpi"><div class="label">Material Cost/kg</div><div class="value">₹ ${Util.fmt(r.formulationCostPerKg,2)}</div></div>
+          <div class="kpi"><div class="label">Manufacturing Cost/kg</div><div class="value">₹ ${Util.fmt(r.manufacturingCostPerKg,2)}</div></div>
+          <div class="kpi"><div class="label">Estimated Selling Price/kg</div><div class="value">₹ ${Util.fmt(r.sellingPricePerKg,2)}</div></div>
+          <div class="kpi"><div class="label">Estimated Part Cost</div><div class="value">₹ ${Util.fmt(r.sellingPricePerKg * (Util.num(f.targetWeightKg)||0),2)}</div></div>
+        </div>
+
+        <div class="card">
+          <h3>Material Cost Breakdown</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Material</th><th>%</th><th>kg/batch</th><th>Price/kg</th><th>Landed Cost/kg</th><th>Total Cost</th></tr></thead>
+              <tbody>
+              ${f.items.map(it=>`
+                <tr>
+                  <td>${it.ingredient}</td>
+                  <td>${Util.fmt(it.percent,3)}</td>
+                  <td>${Util.fmt(it.kgBatch,3)}</td>
+                  <td>${Util.fmt(it.pricePerKg,3)}</td>
+                  <td>${Util.fmt(Finance.landedCostPerKg(it),3)}</td>
+                  <td>${Util.fmt(it.totalCost,2)}</td>
+                </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    `;
+  },
+
+  viewBatchCalculator(){
+    const f = getActiveFormulation();
+    if(!f) return `<div class="card">No active formulation.</div>`;
+    const r = Calc.computeFormulation(f);
+    const invMap = Object.fromEntries(State.data.inventory.map(i=>[i.materialId,i]));
+    const canProduce = f.items.every(it=>{
+      const inv = invMap[it.materialId];
+      if(!it.materialId || Util.num(it.percent)<=0) return true;
+      return inv ? Util.num(inv.availableKg) >= Util.num(it.kgBatch) : false;
+    });
+
+    return `
+      <div class="layout">
+        <div class="card">
+          <div class="section-title">
+            <h3>Batch Calculator</h3>
+            <div class="toolbar">
+              <button class="btn secondary" onclick="window.print()">Print Batch Sheet</button>
+              <button class="btn secondary" onclick="Actions.exportBatchSheet()">Export Batch Sheet</button>
+            </div>
+          </div>
+          <div class="note">User enters batch size via active formulation target weight. Current stock sufficiency is evaluated from optional inventory records.</div>
+          <div class="kpi-grid">
+            <div class="kpi"><div class="label">Batch Size</div><div class="value">${Util.fmt(f.targetWeightKg,2)} kg</div></div>
+            <div class="kpi"><div class="label">Total Material Cost</div><div class="value">₹ ${Util.fmt(r.totalMaterialCost,2)}</div></div>
+            <div class="kpi"><div class="label">Can Current Stock Produce?</div><div class="value" style="font-size:20px">${canProduce?'YES':'NO'}</div></div>
+            <div class="kpi"><div class="label">Cost/kg</div><div class="value">₹ ${Util.fmt(r.formulationCostPerKg,2)}</div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Material</th><th>%</th><th>kg/batch</th><th>Price/kg</th><th>Cost</th><th>Available Stock</th><th>Status</th></tr></thead>
+              <tbody>
+              ${f.items.map(it=>{
+                const inv = invMap[it.materialId] || {};
+                const ok = Util.num(inv.availableKg) >= Util.num(it.kgBatch) || Util.num(it.kgBatch)===0;
+                return `<tr>
+                  <td>${it.ingredient}</td>
+                  <td>${Util.fmt(it.percent,3)}</td>
+                  <td>${Util.fmt(it.kgBatch,3)}</td>
+                  <td>${Util.fmt(it.pricePerKg,2)}</td>
+                  <td>${Util.fmt(it.totalCost,2)}</td>
+                  <td>${Util.fmt(inv.availableKg||0,2)}</td>
+                  <td class="${ok?'ok':'danger'}">${ok?'OK':'Insufficient'}</td>
+                </tr>`;
+              }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    `;
+  },
+
+  viewWhatIf(){
+    const f = getActiveFormulation();
+    if(!f) return `<div class="card">No active formulation.</div>`;
+    return `
+      <div class="layout">
+        <div class="card">
+          <h3>WHAT-IF ANALYSIS</h3>
+          <div class="form-grid">
+            <label>Material / Ingredient
+              <select id="wi_material">
+                ${f.items.map(it=>`<option value="${it.id}">${it.category}</option>`).join('')}
+              </select>
+            </label>
+            <label>Minimum %<input id="wi_min" type="number" step="0.01" value="15"></label>
+            <label>Maximum %<input id="wi_max" type="number" step="0.01" value="35"></label>
+            <label>Step %<input id="wi_step" type="number" step="0.01" value="2.5"></label>
+          </div>
+          <div class="toolbar" style="margin-top:10px">
+            <button class="btn good" onclick="Actions.runWhatIf()">Run What-if Analysis</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3>What-if Results</h3>
+          <div id="whatIfResults">${this.renderWhatIfResults()}</div>
+        </div>
+      </div>
+    `;
+  },
+
+  renderWhatIfResults(){
+    const rows = State.lastWhatIf || [];
+    if(!rows.length) return `<div class="subtle">No what-if analysis run yet.</div>`;
+    return `
+      <canvas id="chartWhatIf" style="height:300px"></canvas>
+      <div class="table-wrap" style="margin-top:12px">
+        <table>
+          <thead><tr><th>Ingredient %</th><th>Density</th><th>Tensile</th><th>Flexural</th><th>Modulus</th><th>HDT</th><th>Cost/kg</th></tr></thead>
+          <tbody>
+            ${rows.map(r=>`
+              <tr>
+                <td>${Util.fmt(r.percent,2)}</td>
+                <td>${Util.fmt(r.density,4)}</td>
+                <td>${Util.fmt(r.tensileStrength,3)}</td>
+                <td>${Util.fmt(r.flexuralStrength,3)}</td>
+                <td>${Util.fmt(r.flexuralModulus,3)}</td>
+                <td>${Util.fmt(r.HDT,3)}</td>
+                <td>${Util.fmt(r.costPerKg,3)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  },
+
+  viewComparison(){
+    return `
+      <div class="layout">
+        <div class="card">
+          <div class="section-title">
+            <h3>Formulation Comparison</h3>
+            <div class="subtle">Select up to 5 formulations. Objective numerical comparison only.</div>
+          </div>
+          <div class="list">
+            ${State.data.formulations.map(f=>`
+              <label class="list-item" style="flex-direction:row;align-items:center;gap:10px">
+                <input type="checkbox" class="cmpChk" value="${f.id}" ${State.compareIds.includes(f.id)?'checked':''} style="width:20px;height:20px">
+                <div><b>${f.name}</b><div class="mini">${f.formulationId} | Rev ${f.revision} | ${f.application || '-'}</div></div>
+              </label>
+            `).join('')}
+          </div>
+          <div class="toolbar" style="margin-top:10px">
+            <button class="btn good" onclick="Actions.runComparison()">Compare Selected</button>
+          </div>
+        </div>
+
+        <div class="card" id="comparisonResults">
+          ${this.renderComparisonResults()}
+        </div>
+      </div>
+    `;
+  },
+
+  renderComparisonResults(){
+    const ids = State.compareIds.slice(0,5);
+    if(!ids.length) return `<div class="subtle">No formulations selected.</div>`;
+    const forms = ids.map(id=>State.data.formulations.find(f=>f.id===id)).filter(Boolean);
+    if(!forms.length) return `<div class="subtle">No formulations selected.</div>`;
+    const res = forms.map(f=>({f,r:Calc.computeFormulation(f)}));
+    const props = ["density","tensileStrength","flexuralStrength","flexuralModulus","HDT","shrinkage","viscosity","gelTime"];
+    return `
+      <h3>Comparison Table</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Metric</th>${forms.map(f=>`<th>${f.name}</th>`).join('')}</tr></thead>
+          <tbody>
+            <tr><td>Cost/kg</td>${res.map(x=>`<td>${Util.fmt(x.r.formulationCostPerKg,3)}</td>`).join('')}</tr>
+            <tr><td>Total %</td>${res.map(x=>`<td>${Util.fmt(x.r.totalPercent,3)}</td>`).join('')}</tr>
+            ${props.map(p=>{
+              const pd = PROPERTY_DEFS.find(x=>x.key===p);
+              return `<tr><td>${pd.label} (${pd.unit})</td>${res.map(x=>`<td>${Util.fmt(x.r.properties[p],3)}</td>`).join('')}</tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+      <div class="grid-2" style="margin-top:12px">
+        <canvas id="cmpCostChart" style="height:280px"></canvas>
+        <canvas id="cmpDensityChart" style="height:280px"></canvas>
+      </div>
+    `;
+  },
+
+  viewExperimental(){
+    const f = getActiveFormulation();
+    if(!f) return `<div class="card">No active formulation.</div>`;
+    const exp = State.data.experimentalData.filter(x=>x.formulationId===f.id);
+    const r = Calc.computeFormulation(f);
+    return `
+      <div class="layout">
+        <div class="card">
+          <div class="section-title">
+            <h3>Experimental Data Module</h3>
+            <div class="toolbar">
+              <button class="btn good" onclick="Actions.addExperimentalData()">Add Experimental Result</button>
+            </div>
+          </div>
+          <div class="note">Theoretical vs experimental comparison is intended for engineering correlation, not automatic scientific validation.</div>
+        </div>
+
+        <div class="card">
+          <h3>Current Predicted vs Experimental</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Date</th><th>Property</th><th>Predicted</th><th>Experimental</th><th>Error %</th><th>Notes</th></tr></thead>
+              <tbody>
+                ${exp.flatMap(e=>{
+                  return Object.entries(e.results || {}).map(([k,v])=>{
+                    const pred = Util.num(r.properties[k]);
+                    const ex = Util.num(v);
+                    const err = ex!==0 ? ((ex-pred)/ex)*100 : 0;
+                    const pd = PROPERTY_DEFS.find(p=>p.key===k);
+                    return `<tr>
+                      <td>${e.date}</td>
+                      <td>${pd?.label || k}</td>
+                      <td>${Util.fmt(pred,3)}</td>
+                      <td>${Util.fmt(ex,3)}</td>
+                      <td>${Util.fmt(err,2)}</td>
+                      <td>${e.notes || '-'}</td>
+                    </tr>`;
+                  });
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    `;
+  },
+
+  viewDatabase(){
+    const s = getSettings();
+    return `
+      <div class="layout">
+        <div class="card">
+          <h3>DATABASE MANAGEMENT</h3>
+          <div class="grid-4">
+            <div class="list-item"><b>Materials</b><div class="mini">${State.data.materials.length} records</div></div>
+            <div class="list-item"><b>Suppliers</b><div class="mini">${State.data.suppliers.length} records</div></div>
+            <div class="list-item"><b>Applications</b><div class="mini">${State.data.applications.length} records</div></div>
+            <div class="list-item"><b>Presets</b><div class="mini">${State.data.presets.length} records</div></div>
+            <div class="list-item"><b>Prices</b><div class="mini">${State.data.priceHistory.length} records</div></div>
+            <div class="list-item"><b>Equations</b><div class="mini">${State.data.equations.length} records</div></div>
+            <div class="list-item"><b>Inventory</b><div class="mini">${State.data.inventory.length} records</div></div>
+            <div class="list-item"><b>Exchange Rates</b><div class="mini">USD=${s.exchangeRates.USD}, CNY=${s.exchangeRates.CNY}, EUR=${s.exchangeRates.EUR}</div></div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3>Import / Export</h3>
+            <div class="toolbar">
+              <button class="btn secondary" onclick="Actions.exportJSON()">Export JSON</button>
+              <button class="btn secondary" onclick="Actions.exportExcelCompatible()">EXPORT TO EXCEL</button>
+              <button class="btn secondary" onclick="Actions.importData()">Import JSON / CSV</button>
+            </div>
+            <div class="note">Excel export is generated locally as SpreadsheetML/XML workbook compatible with Excel, without external libraries.</div>
+          </div>
+
+          <div class="card">
+            <h3>Factory Presets</h3>
+            <div class="toolbar">
+              <button class="btn warn" onclick="Actions.factoryReset()">Reset to Factory Presets</button>
+            </div>
+            <div class="note">User-created data will not be deleted without confirmation.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Inventory</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Material</th><th>Current Stock</th><th>Min</th><th>Max</th><th>Reserved</th><th>Available</th><th>Supplier</th><th>Lead Time</th><th>Last Price</th><th>Action</th></tr></thead>
+              <tbody>
+              ${State.data.inventory.map(inv=>{
+                const m = getMaterial(inv.materialId) || {};
+                return `<tr>
+                  <td>${m.materialName || inv.materialId}</td>
+                  <td>${Util.fmt(inv.currentStockKg,2)}</td>
+                  <td>${Util.fmt(inv.minStockKg,2)}</td>
+                  <td>${Util.fmt(inv.maxStockKg,2)}</td>
+                  <td>${Util.fmt(inv.reservedKg,2)}</td>
+                  <td>${Util.fmt(inv.availableKg,2)}</td>
+                  <td>${inv.supplier || '-'}</td>
+                  <td>${inv.leadTime || '-'}</td>
+                  <td>${Util.fmt(inv.lastPurchasePrice,2)}</td>
+                  <td><button class="btn secondary small" onclick="Actions.editInventory('${inv.id}')">Edit</button></td>
+                </tr>`;
+              }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    `;
+  },
+
+  viewReports(){
+    return `
+      <div class="layout">
+        <div class="card">
+          <h3>Reports</h3>
+          <div class="toolbar">
+            <button class="btn secondary" onclick="Actions.exportExcelCompatible()">Export Full Excel-Compatible Workbook</button>
+            <button class="btn secondary" onclick="Actions.exportJSON()">Export Full Database JSON</button>
+          </div>
+          <div class="note">Workbook sheets include Formulation Summary, Composition, Material Properties, Supplier Data, Pricing, Cost Calculation, Combined Properties, Batch Calculation, What-if Analysis, Revision History.</div>
+        </div>
+      </div>
+    `;
+  },
+
+  viewSettings(){
+    const s = getSettings();
+    return `
+      <div class="layout">
+        <div class="card">
+          <h3>Settings</h3>
+          <div class="form-grid">
+            <label>Units System
+              <select id="set_units">
+                <option value="SI" ${s.unitsSystem==="SI"?'selected':''}>SI</option>
+                <option value="Metric" ${s.unitsSystem==="Metric"?'selected':''}>Metric</option>
+                <option value="User-defined" ${s.unitsSystem==="User-defined"?'selected':''}>User-defined</option>
+              </select>
+            </label>
+            <label>Default Currency
+              <select id="set_cur">
+                <option value="INR" ${s.defaultCurrency==="INR"?'selected':''}>INR</option>
+                <option value="USD" ${s.defaultCurrency==="USD"?'selected':''}>USD</option>
+                <option value="CNY" ${s.defaultCurrency==="CNY"?'selected':''}>CNY</option>
+                <option value="EUR" ${s.defaultCurrency==="EUR"?'selected':''}>EUR</option>
+              </select>
+            </label>
+            <label>USD → INR<input id="set_usd" type="number" step="0.0001" value="${s.exchangeRates.USD}"></label>
+            <label>CNY → INR<input id="set_cny" type="number" step="0.0001" value="${s.exchangeRates.CNY}"></label>
+            <label>EUR → INR<input id="set_eur" type="number" step="0.0001" value="${s.exchangeRates.EUR}"></label>
+          </div>
+          <div class="hr"></div>
+          <div class="three-col">
+            <label><span>Freight ON/OFF</span><select id="set_freight"><option value="true" ${s.costToggles.freight?'selected':''}>ON</option><option value="false" ${!s.costToggles.freight?'selected':''}>OFF</option></select></label>
+            <label><span>Insurance ON/OFF</span><select id="set_insurance"><option value="true" ${s.costToggles.insurance?'selected':''}>ON</option><option value="false" ${!s.costToggles.insurance?'selected':''}>OFF</option></select></label>
+            <label><span>Duty ON/OFF</span><select id="set_duty"><option value="true" ${s.costToggles.duty?'selected':''}>ON</option><option value="false" ${!s.costToggles.duty?'selected':''}>OFF</option></select></label>
+            <label><span>GST ON/OFF</span><select id="set_gst"><option value="true" ${s.costToggles.gst?'selected':''}>ON</option><option value="false" ${!s.costToggles.gst?'selected':''}>OFF</option></select></label>
+            <label><span>Other Charges ON/OFF</span><select id="set_other"><option value="true" ${s.costToggles.other?'selected':''}>ON</option><option value="false" ${!s.costToggles.other?'selected':''}>OFF</option></select></label>
+          </div>
+          <div class="sticky-actions">
+            <button class="btn good" onclick="Actions.saveSettings()">Save Settings</button>
+          </div>
+        </div>
+      </div>
+    `;
+  },
+
+  bindView(){
+    const f = getActiveFormulation();
+
+    // Dashboard charts
+    if(State.currentView==="Dashboard" && f){
+      const r = Calc.computeFormulation(f);
+      const labels = f.items.map(it=>it.category);
+      const vals = f.items.map(it=>Util.num(it.percent));
+      const colors = labels.map((_,i)=>`hsl(${(i*37)%360} 70% 56%)`);
+      const c1 = document.getElementById('chartComposition');
+      const c2 = document.getElementById('chartCostContribution');
+      const c3 = document.getElementById('chartPropertyCompare');
+      if(c1) Charts.donut(c1, labels, vals, colors, "SMC Composition");
+      if(c2) Charts.bars(c2, labels, f.items.map(it=>Util.num(it.totalCost)), "Material Cost Contribution", "#4ad29f");
+      if(c3){
+        const metrics = ["Strength","Modulus","HDT","Impact","Density","Shrinkage"];
+        const cur = [r.properties.tensileStrength, r.properties.flexuralModulus, r.properties.HDT, r.properties.impactStrength, r.properties.density, r.properties.shrinkage];
+        const mins = [0,0,0,0,0,0];
+        const maxs = [
+          f.targetProperties.tensileStrength.max || Math.max(cur[0],1),
+          f.targetProperties.flexuralModulus.max || Math.max(cur[1],1),
+          f.targetProperties.HDT.max || Math.max(cur[2],1),
+          f.targetProperties.impactStrength.max || Math.max(cur[3],1),
+          f.targetProperties.density.max || Math.max(cur[4],1),
+          f.targetProperties.shrinkage.max || Math.max(cur[5],1)
+        ].map(Util.num);
+        Charts.radarFallback(c3, metrics, cur, mins, maxs, "Normalized Property Visualization");
+      }
+      const btn = document.getElementById('btnOpenFormulationEditor');
+      if(btn) btn.onclick = ()=>{ State.currentView="Formulations"; UI.render(); };
+    }
+
+    // Formulation editor live bind
+    if(State.currentView==="Formulations" && f){
+      const bindSimple = (id,key,convert=(v)=>v)=>{
+        const el = document.getElementById(id);
+        if(el) el.oninput = ()=>{ f[key] = convert(el.value); f.modifiedDate = Util.today(); UI.render(); };
+      };
+      bindSimple('f_formulationId','formulationId');
+      bindSimple('f_name','name');
+      bindSimple('f_application','application');
+      bindSimple('f_customer','customer');
+      bindSimple('f_partName','partName');
+      bindSimple('f_partNumber','partNumber');
+      bindSimple('f_revision','revision');
+      bindSimple('f_engineer','engineer');
+      bindSimple('f_plant','plant');
+      bindSimple('f_process','manufacturingProcess');
+      bindSimple('f_targetWeightKg','targetWeightKg',Util.num);
+      bindSimple('f_notes','notes');
+      const an = document.getElementById('f_autoNormalize');
+      if(an) an.onchange = ()=>{ f.autoNormalize = an.value==="true"; f.modifiedDate = Util.today(); UI.render(); };
+
+      document.querySelectorAll('.fi').forEach(el=>{
+        el.oninput = el.onchange = ()=>{
+          const idx = Number(el.dataset.row), field = el.dataset.field;
+          const item = f.items[idx];
+          if(!item) return;
+          item[field] = ["percent","pricePerKg","density"].includes(field) ? Util.num(el.value) : el.value;
+          if(field==="materialId"){
+            Calc.hydrateItemFromMaterial(item);
+          }
+          const settings = getSettings();
+          if(item.logistics && item.logistics.toggles){
+            item.logistics.toggles = {...settings.costToggles, ...item.logistics.toggles};
+          }
+          f.modifiedDate = Util.today();
+          UI.render();
+        };
+      });
+    }
+
+    // What-if chart
+    if(State.currentView==="What-if Analysis" && State.lastWhatIf && State.lastWhatIf.length){
+      const c = document.getElementById('chartWhatIf');
+      if(c){
+        Charts.line(c, State.lastWhatIf.map(x=>Util.fmt(x.percent,1)), State.lastWhatIf.map(x=>x.flexuralModulus), "Sensitivity: Ingredient % vs Flexural Modulus", "#ffb648");
+      }
+    }
+
+    // Comparison chart
+    if(State.currentView==="Comparison" && State.compareIds.length){
+      const forms = State.compareIds.slice(0,5).map(id=>State.data.formulations.find(f=>f.id===id)).filter(Boolean);
+      const res = forms.map(f=>Calc.computeFormulation(f));
+      const cc = document.getElementById('cmpCostChart');
+      const dc = document.getElementById('cmpDensityChart');
+      if(cc) Charts.bars(cc, forms.map(f=>f.name), res.map(r=>r.formulationCostPerKg), "Cost/kg Comparison", "#3aa3ff");
+      if(dc) Charts.bars(dc, forms.map(f=>f.name), res.map(r=>r.properties.density), "Density Comparison", "#4ad29f");
+      document.querySelectorAll('.cmpChk').forEach(ch=>{
+        ch.onchange = ()=>{
+          const v = ch.value;
+          if(ch.checked){
+            if(!State.compareIds.includes(v) && State.compareIds.length<5) State.compareIds.push(v);
+          }else{
+            State.compareIds = State.compareIds.filter(x=>x!==v);
+          }
+        };
+      });
+    }
+
+    // New formulation buttons
+    if(State.currentView==="New Formulation"){
+      const val = id=>document.getElementById(id)?.value || "";
+      const fillMeta = frm=>{
+        frm.application = val("nf_app");
+        frm.engineer = val("nf_engineer");
+        frm.plant = val("nf_plant");
+      };
+      document.getElementById('createBlank').onclick = async ()=>{
+        const frm = createBlankFormulation(val("nf_name") || "New SMC Formulation", val("nf_app"));
+        fillMeta(frm);
+        State.data.formulations.push(frm);
+        setActiveFormulation(frm.id);
+        await saveAllData();
+        State.currentView = "Formulations";
+        UI.render();
+      };
+      document.getElementById('createFromPreset').onclick = ()=>{
+        Actions.createFromPresetDialog(val("nf_name") || "Preset Formulation", val("nf_app"), val("nf_engineer"), val("nf_plant"));
+      };
+      document.getElementById('duplicateExisting').onclick = ()=>{
+        Actions.duplicateFormulationDialog();
+      };
+      document.getElementById('createFromRevision').onclick = ()=>{
+        Actions.createFromRevisionDialog();
+      };
+      document.getElementById('importFormulationBtn').onclick = ()=>Actions.importData();
+    }
+  },
+
+  showCalcExplain(propertyKey){
+    const f = getActiveFormulation();
+    if(!f) return;
+    UI.modal("Calculation Transparency", Calc.explainProperty(f, propertyKey));
+  }
+};
+
+/* -------------------------
+   Actions
+------------------------- */
+const Actions = {
+  async saveActiveFormulation(){
+    const f = getActiveFormulation();
+    if(!f) return;
+    f.modifiedDate = Util.today();
+    await saveAllData();
+    alert("Formulation saved.");
+  },
+
+  openFormulation(id){
+    setActiveFormulation(id);
+    State.currentView = "Formulations";
+    UI.render();
+  },
+
+  async duplicateFormulation(id){
+    const src = State.data.formulations.find(f=>f.id===id);
+    if(!src) return;
+    const x = Util.clone(src);
+    x.id = Util.uid("FORM");
+    x.formulationId = Util.uid("F");
+    x.name = src.name + " (Copy)";
+    x.createdDate = Util.today();
+    x.modifiedDate = Util.today();
+    x.revision = src.revision;
+    x.items.forEach(it=>it.id = Util.uid("FI"));
+    State.data.formulations.push(x);
+    setActiveFormulation(x.id);
+    await saveAllData();
+    State.currentView = "Formulations";
+    UI.render();
+  },
+
+  duplicateFormulationDialog(){
+    UI.modal("Duplicate Existing Formulation", `
+      <div class="list">
+        ${State.data.formulations.map(f=>`
+          <div class="list-item">
+            <b>${f.name}</b><div class="mini">${f.formulationId} | Rev ${f.revision}</div>
+            <div style="margin-top:8px"><button class="btn good" onclick="Actions.duplicateFormulation('${f.id}');UI.closeModal()">Duplicate</button></div>
+          </div>
+        `).join('')}
+      </div>
+    `);
+  },
+
+  async newRevision(id){
+    const src = State.data.formulations.find(f=>f.id===id);
+    if(!src) return;
+    const nextRev = String.fromCharCode((src.revision || "A").charCodeAt(0)+1);
+    const x = Util.clone(src);
+    const prev = Util.clone(src);
+    x.id = Util.uid("FORM");
+    x.formulationId = src.formulationId;
+    x.revision = nextRev;
+    x.name = src.name + " Rev " + nextRev;
+    x.createdDate = Util.today();
+    x.modifiedDate = Util.today();
+    x.items.forEach(it=>it.id = Util.uid("FI"));
+    State.data.formulations.push(x);
+    State.data.revisions.push({
+      id:Util.uid("REV"),
+      formulationId:x.id,
+      revision:nextRev,
+      date:Util.today(),
+      engineer:x.engineer || "",
+      changes:"New revision created",
+      previousFormulation:prev,
+      newFormulation:Util.clone(x),
+      reason:"Revision increment",
+      notes:""
+    });
+    setActiveFormulation(x.id);
+    await saveAllData();
+    State.currentView="Formulations";
+    UI.render();
+  },
+
+  createFromRevisionDialog(){
+    UI.modal("Create From Previous Revision", `
+      <div class="list">
+        ${State.data.revisions.map(rv=>`
+          <div class="list-item">
+            <b>Revision ${rv.revision}</b>
+            <div class="mini">${rv.date} | ${rv.engineer || '-'}</div>
+            <div class="mini">${rv.reason || '-'}</div>
+            <div style="margin-top:8px"><button class="btn good" onclick="Actions.createFromRevision('${rv.id}');UI.closeModal()">Create Formulation</button></div>
+          </div>
+        `).join('')}
+      </div>
+    `);
+  },
+
+  async createFromRevision(revId){
+    const rv = State.data.revisions.find(r=>r.id===revId);
+    if(!rv || !rv.newFormulation) return;
+    const x = Util.clone(rv.newFormulation);
+    x.id = Util.uid("FORM");
+    x.formulationId = Util.uid("F");
+    x.name = (x.name || "Revision Clone") + " (From Revision)";
+    x.createdDate = Util.today();
+    x.modifiedDate = Util.today();
+    x.items.forEach(it=>it.id = Util.uid("FI"));
+    State.data.formulations.push(x);
+    setActiveFormulation(x.id);
+    await saveAllData();
+    State.currentView = "Formulations";
+    UI.render();
+  },
+
+  previewPreset(id){
+    const p = State.data.presets.find(x=>x.id===id);
+    if(!p) return;
+    UI.modal("Preset Preview", `
+      <div class="card">
+        <h3>${p.name}</h3>
+        <div class="note">Starting formulation / engineering preset — editable</div>
+        <div class="table-wrap" style="margin-top:10px">
+          <table>
+            <thead><tr><th>Category</th><th>%</th></tr></thead>
+            <tbody>${p.composition.map(c=>`<tr><td>${c.category}</td><td>${c.percent}</td></tr>`).join('')}</tbody>
+          </table>
+        </div>
+      </div>
+    `);
+  },
+
+  createFromPresetDialog(defaultName, defaultApp, engineer, plant){
+    UI.modal("Create From Preset", `
+      <div class="list">
+        ${State.data.presets.map(p=>{
+          const app = State.data.applications.find(a=>a.id===p.applicationId);
+          return `<div class="list-item">
+            <b>${p.name}</b>
+            <div class="mini">${app?.name || '-'}</div>
+            <div style="margin-top:8px"><button class="btn good" onclick="Actions.createFromPreset('${p.id}','${encodeURIComponent(defaultName)}','${encodeURIComponent(defaultApp)}','${encodeURIComponent(engineer)}','${encodeURIComponent(plant)}');UI.closeModal()">Create</button></div>
+          </div>`;
+        }).join('')}
+      </div>
+    `);
+  },
+
+  async createFromPreset(presetId, name, app, engineer, plant){
+    const p = State.data.presets.find(x=>x.id===presetId);
+    if(!p) return;
+    const appObj = State.data.applications.find(a=>a.id===p.applicationId);
+    const frm = createBlankFormulation(decodeURIComponent(name || "Preset Formulation"), decodeURIComponent(app || appObj?.name || ""));
+    frm.engineer = decodeURIComponent(engineer || "");
+    frm.plant = decodeURIComponent(plant || "");
+    frm.items.forEach(it=>{
+      const pc = p.composition.find(x=>x.category===it.category);
+      if(pc) it.percent = Util.num(pc.percent);
+      const mat = State.data.materials.find(m=>m.category===it.category);
+      if(mat){
+        it.materialId = mat.id;
+        Calc.hydrateItemFromMaterial(it);
+      }
+    });
+    State.data.formulations.push(frm);
+    setActiveFormulation(frm.id);
+    await saveAllData();
+    State.currentView = "Formulations";
+    UI.render();
+  },
+
+  applyPresetToActive(){
+    const f = getActiveFormulation();
+    if(!f) return;
+    UI.modal("Apply Preset to Active Formulation", `
+      <div class="list">
+        ${State.data.presets.map(p=>`
+          <div class="list-item">
+            <b>${p.name}</b>
+            <div style="margin-top:8px"><button class="btn good" onclick="Actions.applyPreset('${p.id}');UI.closeModal()">Apply</button></div>
+          </div>
+        `).join('')}
+      </div>
+    `);
+  },
+
+  async applyPreset(presetId){
+    const f = getActiveFormulation();
+    const p = State.data.presets.find(x=>x.id===presetId);
+    if(!f || !p) return;
+    f.items.forEach(it=>{
+      const pc = p.composition.find(x=>x.category===it.category);
+      if(pc) it.percent = Util.num(pc.percent);
+    });
+    f.modifiedDate = Util.today();
+    await saveAllData();
+    UI.render();
+  },
+
+  async deleteFormulation(id){
+    if(!confirm("Delete this formulation?")) return;
+    State.data.formulations = State.data.formulations.filter(f=>f.id!==id);
+    if(State.activeFormulationId===id){
+      State.activeFormulationId = State.data.formulations[0]?.id || null;
+    }
+    await saveAllData();
+    UI.render();
+  },
+
+  async addCustomIngredient(formId){
+    const f = State.data.formulations.find(x=>x.id===formId);
+    if(!f) return;
+    const name = prompt("Enter new custom ingredient/category name:");
+    if(!name) return;
+    f.items.push({
+      id:Util.uid("FI"),
+      category:name,
+      ingredient:name,
+      materialId:"",
+      supplier:"",
+      grade:"",
+      percent:0,
+      kgBatch:0,
+      pricePerKg:0,
+      currency:"INR",
+      costPerKg:0,
+      totalCost:0,
+      density:0,
+      function:name,
+      logistics:{priceSource:"",priceDate:"",domesticIndiaPrice:0,chinaFOBPrice:0,chinaLandedIndiaPrice:0,freight:0,insurance:0,duty:0,gst:0,other:0,toggles:{...getSettings().costToggles}},
+      notes:"",
+      custom:true
+    });
+    f.modifiedDate = Util.today();
+    await saveAllData();
+    UI.render();
+  },
+
+  async removeIngredient(formId, itemId){
+    const f = State.data.formulations.find(x=>x.id===formId);
+    if(!f) return;
+    if(!confirm("Remove this ingredient row?")) return;
+    f.items = f.items.filter(it=>it.id!==itemId);
+    f.modifiedDate = Util.today();
+    await saveAllData();
+    UI.render();
+  },
+
+  editLogistics(formId,itemId){
+    const f = State.data.formulations.find(x=>x.id===formId);
+    if(!f) return;
+    const it = f.items.find(x=>x.id===itemId);
+    if(!it) return;
+    it.logistics = it.logistics || {toggles:{...getSettings().costToggles}};
+    const l = it.logistics;
+    UI.modal("Landed Cost Editor", `
+      <div class="two-col">
+        <label>Price Source<input id="lg_src" value="${l.priceSource || ''}"></label>
+        <label>Price Date<input id="lg_date" type="date" value="${l.priceDate || Util.today()}"></label>
+        <label>Freight<input id="lg_freight" type="number" step="0.01" value="${l.freight || 0}"></label>
+        <label>Insurance<input id="lg_insurance" type="number" step="0.01" value="${l.insurance || 0}"></label>
+        <label>Duty<input id="lg_duty" type="number" step="0.01" value="${l.duty || 0}"></label>
+        <label>GST<input id="lg_gst" type="number" step="0.01" value="${l.gst || 0}"></label>
+        <label>Other Charges<input id="lg_other" type="number" step="0.01" value="${l.other || 0}"></label>
+        <label>Freight ON/OFF<select id="lg_t_freight"><option value="true" ${l.toggles?.freight?'selected':''}>ON</option><option value="false" ${!l.toggles?.freight?'selected':''}>OFF</option></select></label>
+        <label>Insurance ON/OFF<select id="lg_t_insurance"><option value="true" ${l.toggles?.insurance?'selected':''}>ON</option><option value="false" ${!l.toggles?.insurance?'selected':''}>OFF</option></select></label>
+        <label>Duty ON/OFF<select id="lg_t_duty"><option value="true" ${l.toggles?.duty?'selected':''}>ON</option><option value="false" ${!l.toggles?.duty?'selected':''}>OFF</option></select></label>
+        <label>GST ON/OFF<select id="lg_t_gst"><option value="true" ${l.toggles?.gst?'selected':''}>ON</option><option value="false" ${!l.toggles?.gst?'selected':''}>OFF</option></select></label>
+        <label>Other ON/OFF<select id="lg_t_other"><option value="true" ${l.toggles?.other?'selected':''}>ON</option><option value="false" ${!l.toggles?.other?'selected':''}>OFF</option></select></label>
+      </div>
+      <div class="sticky-actions">
+        <button class="btn good" onclick="Actions.saveLogistics('${formId}','${itemId}')">Save</button>
+      </div>
+    `);
+  },
+
+  async saveLogistics(formId,itemId){
+    const f = State.data.formulations.find(x=>x.id===formId);
+    const it = f?.items.find(x=>x.id===itemId);
+    if(!it) return;
+    it.logistics.priceSource = document.getElementById('lg_src').value;
+    it.logistics.priceDate = document.getElementById('lg_date').value;
+    it.logistics.freight = Util.num(document.getElementById('lg_freight').value);
+    it.logistics.insurance = Util.num(document.getElementById('lg_insurance').value);
+    it.logistics.duty = Util.num(document.getElementById('lg_duty').value);
+    it.logistics.gst = Util.num(document.getElementById('lg_gst').value);
+    it.logistics.other = Util.num(document.getElementById('lg_other').value);
+    it.logistics.toggles = {
+      freight: document.getElementById('lg_t_freight').value==="true",
+      insurance: document.getElementById('lg_t_insurance').value==="true",
+      duty: document.getElementById('lg_t_duty').value==="true",
+      gst: document.getElementById('lg_t_gst').value==="true",
+      other: document.getElementById('lg_t_other').value==="true"
+    };
+    f.modifiedDate = Util.today();
+    await saveAllData();
+    UI.closeModal();
+    UI.render();
+  },
+
+  openMaterialAnalysis(materialId){
+    const m = getMaterial(materialId);
+    if(!m){
+      alert("No material selected.");
+      return;
+    }
+    const tabs = ["Identity","Physical","Mechanical","Thermal","Processing","Commercial","Documentation"];
+    const html = `
+      <div class="tabs">
+        ${tabs.map((t,i)=>`<button class="tab-btn ${i===0?'active':''}" onclick="Actions.switchMaterialTab(event,'matTab${i}')">${t}</button>`).join('')}
+      </div>
+      <div id="matTab0" class="matTab">
+        <div class="two-col">
+          <div class="card">
+            <h4>Identity</h4>
+            <p><b>Manufacturer:</b> ${m.manufacturer || '-'}</p>
+            <p><b>Grade:</b> ${m.grade || '-'}</p>
+            <p><b>Product:</b> ${m.materialName || '-'}</p>
+            <p><b>Category:</b> ${m.category || '-'}</p>
+            <p><b>Supplier:</b> ${m.supplier || '-'}</p>
+          </div>
+          <div class="card">
+            <h4>Data Quality</h4>
+            <p><b>Source:</b> ${m.sourceType || '-'}</p>
+            <p><b>Confidence:</b> ${m.confidence || '-'}</p>
+            <p><b>Date:</b> ${m.date || '-'}</p>
+            <p><b>Reference:</b> ${m.reference || '-'}</p>
+          </div>
+        </div>
+      </div>
+      <div id="matTab1" class="matTab hidden"><div class="card">${this.materialPropTable(m,["density","viscosity","filamentDiameter","choppedStrandLength","tex","moisture","styreneContent","particleSize","purity","surfaceArea"])}</div></div>
+      <div id="matTab2" class="matTab hidden"><div class="card">${this.materialPropTable(m,["tensileStrength","tensileModulus","flexuralStrength","flexuralModulus","elongation","impactStrength","compressiveStrength","shearStrength","modulus"])}</div></div>
+      <div id="matTab3" class="matTab hidden"><div class="card">${this.materialPropTable(m,["thermalStability","HDT","Tg","thermalConductivity","CTE","decompositionTemperature","heatStability","lightStability"])}</div></div>
+      <div id="matTab4" class="matTab hidden"><div class="card">${this.materialPropTable(m,["sizing","compatibility","recommendedDosage","dosage","processingTemperature","flowImprovement","cureTemperature","gelTime"])}</div></div>
+      <div id="matTab5" class="matTab hidden"><div class="card">${this.materialPropTable(m,["pricePerKg","currency","moq","leadTime","supplier"])}</div></div>
+      <div id="matTab6" class="matTab hidden"><div class="card">${this.materialPropTable(m,["datasheetReference","productDatasheet","reference","notes","sourceRef"])}</div></div>
+    `;
+    UI.modal(`Material Analysis — ${m.materialName || m.id}`, html);
+  },
+
+  switchMaterialTab(ev,id){
+    document.querySelectorAll('.matTab').forEach(x=>x.classList.add('hidden'));
+    document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
+    document.getElementById(id).classList.remove('hidden');
+    ev.target.classList.add('active');
+  },
+
+  materialPropTable(m, keys){
+    return `<table><tbody>${keys.map(k=>`<tr><td><b>${k}</b></td><td>${m[k] ?? '-'}</td></tr>`).join('')}</tbody></table>`;
+  },
+
+  async runWhatIf(){
+    const f = getActiveFormulation();
+    if(!f) return;
+    const itemId = document.getElementById('wi_material').value;
+    const mn = Util.num(document.getElementById('wi_min').value);
+    const mx = Util.num(document.getElementById('wi_max').value);
+    const step = Util.num(document.getElementById('wi_step').value);
+    const item = f.items.find(x=>x.id===itemId);
+    if(!item || step<=0 || mx<mn) return alert("Invalid what-if range.");
+    const rows = [];
+    const base = Util.clone(f);
+    for(let p=mn; p<=mx+1e-9; p+=step){
+      const x = Util.clone(base);
+      const target = x.items.find(z=>z.id===itemId);
+      target.percent = p;
+      const rr = Calc.computeFormulation(x);
+      rows.push({
+        percent:p,
+        density:rr.properties.density,
+        tensileStrength:rr.properties.tensileStrength,
+        flexuralStrength:rr.properties.flexuralStrength,
+        flexuralModulus:rr.properties.flexuralModulus,
+        HDT:rr.properties.HDT,
+        costPerKg:rr.formulationCostPerKg
+      });
+    }
+    State.lastWhatIf = rows;
+    UI.render();
+  },
+
+  runComparison(){
+    const selected = [...document.querySelectorAll('.cmpChk:checked')].map(x=>x.value).slice(0,5);
+    State.compareIds = selected;
+    UI.render();
+  },
+
+  async saveCosting(){
+    const f = getActiveFormulation();
+    if(!f) return;
+    f.targetCostPerKg = Util.num(document.getElementById('c_targetCost').value);
+    f.costing.scrapPercent = Util.num(document.getElementById('c_scrap').value);
+    f.costing.processLossPercent = Util.num(document.getElementById('c_processLoss').value);
+    f.costing.labourPerKg = Util.num(document.getElementById('c_labour').value);
+    f.costing.energyPerKg = Util.num(document.getElementById('c_energy').value);
+    f.costing.machinePerKg = Util.num(document.getElementById('c_machine').value);
+    f.costing.toolingAmortizationPerKg = Util.num(document.getElementById('c_tooling').value);
+    f.costing.packagingPerKg = Util.num(document.getElementById('c_packaging').value);
+    f.costing.overheadPerKg = Util.num(document.getElementById('c_overhead').value);
+    f.costing.marginPercent = Util.num(document.getElementById('c_margin').value);
+    f.modifiedDate = Util.today();
+    await saveAllData();
+    UI.render();
+    alert("Cost inputs saved.");
+  },
+
+  async addExperimentalData(){
+    const f = getActiveFormulation();
+    if(!f) return;
+    const obj = {
+      id:Util.uid("EXP"),
+      formulationId:f.id,
+      date:Util.today(),
+      results:{
+        density: prompt("Experimental density (g/cm³)?", "") || "",
+        tensileStrength: prompt("Experimental tensile strength (MPa)?", "") || "",
+        flexuralStrength: prompt("Experimental flexural strength (MPa)?", "") || "",
+        impactStrength: prompt("Experimental impact strength (kJ/m²)?", "") || "",
+        HDT: prompt("Experimental HDT (°C)?", "") || "",
+        shrinkage: prompt("Experimental shrinkage (%)?", "") || "",
+        waterAbsorption: prompt("Experimental water absorption (%)?", "") || ""
+      },
+      notes: prompt("Notes?", "") || ""
+    };
+    State.data.experimentalData.push(obj);
+    await saveAllData();
+    UI.render();
+  },
+
+  modelCalibration(){
+    const rows = State.data.experimentalData;
+    if(!rows.length){
+      return UI.modal("Model Calibration", `<div class="card"><p>No experimental data available. Add experimental results first.</p></div>`);
+    }
+    const keys = ["density","tensileStrength","flexuralStrength","impactStrength","HDT","shrinkage"];
+    let html = `<div class="card"><h3>Engineering correlation based on user data</h3><div class="note">This tool estimates simple correction factors from experimental data. It does not automatically validate a scientific model.</div></div>`;
+    html += `<div class="table-wrap"><table><thead><tr><th>Property</th><th>Average Predicted</th><th>Average Experimental</th><th>Suggested CF</th></tr></thead><tbody>`;
+    keys.forEach(key=>{
+      let predSum=0, expSum=0, n=0;
+      rows.forEach(e=>{
+        const f = State.data.formulations.find(x=>x.id===e.formulationId);
+        if(!f) return;
+        const pred = Calc.computeFormulation(f).properties[key];
+        const ex = Util.num(e.results?.[key], NaN);
+        if(isFinite(ex) && isFinite(pred) && ex!==0){
+          predSum += pred; expSum += ex; n++;
+        }
+      });
+      const avgPred = n?predSum/n:0, avgExp = n?expSum/n:0, cf = avgPred!==0 ? avgExp/avgPred : 1;
+      html += `<tr><td>${key}</td><td>${Util.fmt(avgPred,4)}</td><td>${Util.fmt(avgExp,4)}</td><td>${Util.fmt(cf,4)}</td></tr>`;
+    });
+    html += `</tbody></table></div>`;
+    html += `<div class="sticky-actions"><button class="btn good" onclick="Actions.applySuggestedCalibration()">Apply Suggested Calibration</button></div>`;
+    UI.modal("Model Calibration", html);
+  },
+
+  async applySuggestedCalibration(){
+    const rows = State.data.experimentalData;
+    const keys = ["density","tensileStrength","flexuralStrength","impactStrength","HDT","shrinkage"];
+    keys.forEach(key=>{
+      let predSum=0, expSum=0, n=0;
+      rows.forEach(e=>{
+        const f = State.data.formulations.find(x=>x.id===e.formulationId);
+        if(!f) return;
+        const pred = Calc.computeFormulation(f).properties[key];
+        const ex = Util.num(e.results?.[key], NaN);
+        if(isFinite(ex) && isFinite(pred) && ex!==0){
+          predSum += pred; expSum += ex; n++;
+        }
+      });
+      const avgPred = n?predSum/n:0, avgExp = n?expSum/n:0, cf = avgPred!==0 ? avgExp/avgPred : 1;
+      const eq = getEquation(key);
+      if(eq) eq.correctionFactor = cf;
+    });
+    await saveAllData();
+    UI.closeModal();
+    UI.render();
+  },
+
+  editPropertyModels(){
+    UI.modal("Advanced Property Model Editor", `
+      <div class="note">User-defined equations are stored as engineering metadata in this offline build. Default calculations use configurable method + correction factor, and expose transparency.</div>
+      <div class="table-wrap" style="margin-top:12px">
+        <table>
+          <thead><tr><th>Property</th><th>Method</th><th>Equation</th><th>Correction Factor</th></tr></thead>
+          <tbody>
+            ${State.data.equations.map(eq=>`
+              <tr>
+                <td>${eq.label}</td>
+                <td>
+                  <select id="m_${eq.id}">
+                    ${["weighted_average","rule_of_mixtures","empirical_model","user_defined_equation","supplier-derived","experimental","unknown","composition_inverse_density","derived","category_sum"].map(x=>`<option value="${x}" ${eq.method===x?'selected':''}>${x}</option>`).join('')}
+                  </select>
+                </td>
+                <td><input id="e_${eq.id}" value="${(eq.equation||'').replace(/"/g,'&quot;')}"></td>
+                <td><input id="c_${eq.id}" type="number" step="0.0001" value="${eq.correctionFactor ?? 1}"></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+      <div class="sticky-actions">
+        <button class="btn good" onclick="Actions.savePropertyModels()">Save Property Models</button>
+      </div>
+    `);
+  },
+
+  async savePropertyModels(){
+    State.data.equations.forEach(eq=>{
+      eq.method = document.getElementById('m_'+eq.id).value;
+      eq.equation = document.getElementById('e_'+eq.id).value;
+      eq.correctionFactor = Util.num(document.getElementById('c_'+eq.id).value,1);
+      eq.updated = Util.today();
+    });
+    await saveAllData();
+    UI.closeModal();
+    UI.render();
+  },
+
+  addMaterial(){
+    const categories = DEFAULT_MATERIAL_GROUPS;
+    UI.modal("Add Material", `
+      <div class="two-col">
+        <label>Category<select id="am_cat">${categories.map(c=>`<option value="${c}">${c}</option>`).join('')}</select></label>
+        <label>Material Name<input id="am_name"></label>
+        <label>Grade<input id="am_grade"></label>
+        <label>Supplier<input id="am_supplier"></label>
+        <label>Density (g/cm³)<input id="am_density" type="number" step="0.0001"></label>
+        <label>Price/kg<input id="am_price" type="number" step="0.0001"></label>
+        <label>Currency<select id="am_cur"><option>INR</option><option>USD</option><option>CNY</option><option>EUR</option></select></label>
+        <label>Source Type<input id="am_source" value="User-entered"></label>
+        <label>Confidence<input id="am_conf" value="Unverified"></label>
+        <label>Reference<input id="am_ref"></label>
+      </div>
+      <div class="sticky-actions"><button class="btn good" onclick="Actions.saveNewMaterial()">Save Material</button></div>
+    `);
+  },
+
+  async saveNewMaterial(){
+    const cat = document.getElementById('am_cat').value;
+    const m = {
+      id:Util.uid("MAT"),
+      category:cat,
+      materialName:document.getElementById('am_name').value,
+      grade:document.getElementById('am_grade').value,
+      supplier:document.getElementById('am_supplier').value,
+      density:Util.num(document.getElementById('am_density').value),
+      pricePerKg:Util.num(document.getElementById('am_price').value),
+      currency:document.getElementById('am_cur').value,
+      sourceType:document.getElementById('am_source').value,
+      confidence:document.getElementById('am_conf').value,
+      reference:document.getElementById('am_ref').value,
+      date:Util.today(),
+      materialGroupFields:MATERIAL_GROUP_FIELDS[cat] || [],
+      notes:""
+    };
+    State.data.materials.push(m);
+    State.data.inventory.push({
+      id:"inv-"+m.id, materialId:m.id, currentStockKg:0,minStockKg:0,maxStockKg:0,reservedKg:0,availableKg:0,
+      supplier:m.supplier||"",leadTime:"",lastPurchasePrice:m.pricePerKg||0,currentPrice:m.pricePerKg||0,priceTrend:"",notes:""
+    });
+    await saveAllData();
+    UI.closeModal();
+    UI.render();
+  },
+
+  openMaterialEditor(id){
+    const m = getMaterial(id);
+    if(!m) return;
+    const fields = [...new Set(["category","materialName","grade","supplier","manufacturer","density","viscosity","styreneContent","acidValue","gelTime","Tg","tensileStrength","tensileModulus","flexuralStrength","flexuralModulus","elongation","HDT","shrinkage","waterAbsorption","thermalConductivity","CTE","pricePerKg","currency","MOQ","leadTime","sourceType","confidence","date","reference","notes", ...(m.materialGroupFields||[])])];
+    UI.modal("Edit Material", `
+      <div class="three-col">
+        ${fields.map(k=>{
+          const val = m[k] ?? "";
+          if(k==="category"){
+            return `<label>${k}<select id="me_${k}">${[...new Set([...DEFAULT_MATERIAL_GROUPS,m.category])].map(c=>`<option value="${c}" ${c===m.category?'selected':''}>${c}</option>`).join('')}</select></label>`;
+          }
+          if(k==="currency"){
+            return `<label>${k}<select id="me_${k}">${["INR","USD","CNY","EUR"].map(c=>`<option value="${c}" ${c===val?'selected':''}>${c}</option>`).join('')}</select></label>`;
+          }
+          return `<label>${k}<input id="me_${k}" value="${String(val).replace(/"/g,'&quot;')}"></label>`;
+        }).join('')}
+      </div>
+      <div class="sticky-actions"><button class="btn good" onclick="Actions.saveMaterialEdit('${id}')">Save</button></div>
+    `);
+  },
+
+  async saveMaterialEdit(id){
+    const m = getMaterial(id);
+    if(!m) return;
+    const keys = Object.keys(m).filter(k=>k!=="id");
+    keys.forEach(k=>{
+      const el = document.getElementById('me_'+k);
+      if(el){
+        const isNum = ["density","viscosity","styreneContent","acidValue","gelTime","Tg","tensileStrength","tensileModulus","flexuralStrength","flexuralModulus","elongation","HDT","shrinkage","waterAbsorption","thermalConductivity","CTE","pricePerKg"].includes(k);
+        m[k] = isNum ? Util.num(el.value) : el.value;
+      }
+    });
+    m.date = Util.today();
+    State.data.priceHistory.push({
+      id:Util.uid("PH"),
+      materialId:m.id, supplier:m.supplier||"", grade:m.grade||"", date:Util.today(),
+      INRkg:m.currency==="INR"?m.pricePerKg:"",
+      USDkg:m.currency==="USD"?m.pricePerKg:"",
+      CNYkg:m.currency==="CNY"?m.pricePerKg:"",
+      EURkg:m.currency==="EUR"?m.pricePerKg:"",
+      sourceType:m.sourceType||"", confidence:m.confidence||"", reference:m.reference||""
+    });
+    await saveAllData();
+    UI.closeModal();
+    UI.render();
+  },
+
+  async deleteMaterial(id){
+    if(!confirm("Delete material?")) return;
+    State.data.materials = State.data.materials.filter(m=>m.id!==id);
+    await saveAllData();
+    UI.render();
+  },
+
+  exportMaterials(){
+    Util.download("materials.json", JSON.stringify(State.data.materials,null,2));
+  },
+
+  addSupplier(){
+    UI.modal("Add Supplier", `
+      <div class="three-col">
+        <label>Supplier ID<input id="sp_supplierId" value="${Util.uid('SUP')}"></label>
+        <label>Company Name<input id="sp_companyName"></label>
+        <label>Manufacturer / Distributor<input id="sp_md" value="User-entered"></label>
+        <label>Material Category<select id="sp_cat">${DEFAULT_MATERIAL_GROUPS.map(c=>`<option>${c}</option>`).join('')}</select></label>
+        <label>Material Grade<input id="sp_grade"></label>
+        <label>Product Name<input id="sp_product"></label>
+        <label>Country<select id="sp_country"><option>India</option><option>China</option><option>Other</option></select></label>
+        <label>City<input id="sp_city"></label>
+        <label>State<input id="sp_state"></label>
+        <label>Website<input id="sp_web"></label>
+        <label>Contact<input id="sp_contact"></label>
+        <label>Price<input id="sp_price"></label>
+        <label>Currency<select id="sp_cur"><option>INR</option><option>CNY</option><option>USD</option><option>EUR</option></select></label>
+        <label>Price Basis<input id="sp_basis" value="kg"></label>
+        <label>MOQ<input id="sp_moq"></label>
+        <label>Lead Time<input id="sp_lt"></label>
+        <label>Source/Reference<input id="sp_ref"></label>
+        <label>Reliability Status<select id="sp_rel"><option>Verified</option><option>Manufacturer-listed</option><option>Distributor-listed</option><option>Market reference</option><option>User-entered</option><option>Unverified</option></select></label>
+        <label>User Notes<input id="sp_notes"></label>
+      </div>
+      <div class="sticky-actions"><button class="btn good" onclick="Actions.saveNewSupplier()">Save Supplier</button></div>
+    `);
+  },
+
+  async saveNewSupplier(){
+    const s = {
+      id:Util.uid("SUPROW"),
+      supplierId:document.getElementById('sp_supplierId').value,
+      companyName:document.getElementById('sp_companyName').value,
+      manufacturerDistributor:document.getElementById('sp_md').value,
+      materialCategory:document.getElementById('sp_cat').value,
+      materialGrade:document.getElementById('sp_grade').value,
+      productName:document.getElementById('sp_product').value,
+      country:document.getElementById('sp_country').value,
+      city:document.getElementById('sp_city').value,
+      state:document.getElementById('sp_state').value,
+      website:document.getElementById('sp_web').value,
+      contactInformation:document.getElementById('sp_contact').value,
+      price:document.getElementById('sp_price').value,
+      priceCurrency:document.getElementById('sp_cur').value,
+      priceBasis:document.getElementById('sp_basis').value,
+      moq:document.getElementById('sp_moq').value,
+      leadTime:document.getElementById('sp_lt').value,
+      lastPriceUpdate:Util.today(),
+      sourceReference:document.getElementById('sp_ref').value,
+      reliabilityStatus:document.getElementById('sp_rel').value,
+      userNotes:document.getElementById('sp_notes').value,
+      sourceType:"User-entered",
+      confidence:"Unverified",
+      date:Util.today()
+    };
+    State.data.suppliers.push(s);
+    await saveAllData();
+    UI.closeModal();
+    UI.render();
+  },
+
+  openSupplierEditor(id){
+    const s = State.data.suppliers.find(x=>x.id===id);
+    if(!s) return;
+    const keys = Object.keys(s).filter(k=>k!=="id");
+    UI.modal("Edit Supplier", `
+      <div class="three-col">
+        ${keys.map(k=>`<label>${k}<input id="se_${k}" value="${String(s[k]??"").replace(/"/g,'&quot;')}"></label>`).join('')}
+      </div>
+      <div class="sticky-actions"><button class="btn good" onclick="Actions.saveSupplierEdit('${id}')">Save</button></div>
+    `);
+  },
+
+  async saveSupplierEdit(id){
+    const s = State.data.suppliers.find(x=>x.id===id);
+    if(!s) return;
+    Object.keys(s).forEach(k=>{
+      if(k==="id") return;
+      const el = document.getElementById('se_'+k);
+      if(el) s[k] = el.value;
+    });
+    s.date = Util.today();
+    await saveAllData();
+    UI.closeModal();
+    UI.render();
+  },
+
+  async deleteSupplier(id){
+    if(!confirm("Delete supplier?")) return;
+    State.data.suppliers = State.data.suppliers.filter(s=>s.id!==id);
+    await saveAllData();
+    UI.render();
+  },
+
+  exportSuppliers(){
+    Util.download("suppliers.json", JSON.stringify(State.data.suppliers,null,2));
+  },
+
+  addApplication(){
+    UI.modal("Add Application", `
+      <div class="three-col">
+        <label>Name<input id="ap_name"></label>
+        <label>Resin min<input id="ap_resin_min" type="number" step="0.01"></label>
+        <label>Resin max<input id="ap_resin_max" type="number" step="0.01"></label>
+        <label>Filler min<input id="ap_filler_min" type="number" step="0.01"></label>
+        <label>Filler max<input id="ap_filler_max" type="number" step="0.01"></label>
+        <label>Glass min<input id="ap_glass_min" type="number" step="0.01"></label>
+        <label>Glass max<input id="ap_glass_max" type="number" step="0.01"></label>
+        <label>LPA min<input id="ap_lpa_min" type="number" step="0.01"></label>
+        <label>LPA max<input id="ap_lpa_max" type="number" step="0.01"></label>
+        <label>Catalyst min<input id="ap_cat_min" type="number" step="0.01"></label>
+        <label>Catalyst max<input id="ap_cat_max" type="number" step="0.01"></label>
+      </div>
+      <div class="sticky-actions"><button class="btn good" onclick="Actions.saveApplication()">Save Application</button></div>
+    `);
+  },
+
+  async saveApplication(){
+    State.data.applications.push({
+      id:Util.uid("APP"),
+      name:document.getElementById('ap_name').value,
+      notes:"Starting formulation / engineering preset — editable",
+      targetRanges:{
+        resin:[Util.num(document.getElementById('ap_resin_min').value), Util.num(document.getElementById('ap_resin_max').value)],
+        filler:[Util.num(document.getElementById('ap_filler_min').value), Util.num(document.getElementById('ap_filler_max').value)],
+        glass:[Util.num(document.getElementById('ap_glass_min').value), Util.num(document.getElementById('ap_glass_max').value)],
+        lpa:[Util.num(document.getElementById('ap_lpa_min').value), Util.num(document.getElementById('ap_lpa_max').value)],
+        catalyst:[Util.num(document.getElementById('ap_cat_min').value), Util.num(document.getElementById('ap_cat_max').value)],
+        accelerator:[0,0], thickener:[0,0], pigment:[0,0], fr:[0,0], other:[0,0]
+      },
+      created:Util.today(),
+      sourceType:"User-entered",
+      confidence:"User-entered",
+      reference:""
+    });
+    await saveAllData();
+    UI.closeModal();
+    UI.render();
+  },
+
+  openApplicationEditor(id){
+    const a = State.data.applications.find(x=>x.id===id);
+    if(!a) return;
+    const t = a.targetRanges || {};
+    const r = (k,idx)=>t[k]?.[idx] ?? "";
+    UI.modal("Edit Application", `
+      <div class="three-col">
+        <label>Name<input id="ae_name" value="${a.name}"></label>
+        ${["resin","filler","glass","lpa","catalyst","accelerator","thickener","pigment","fr","other"].map(k=>`
+          <label>${k} min<input id="ae_${k}_min" type="number" step="0.01" value="${r(k,0)}"></label>
+          <label>${k} max<input id="ae_${k}_max" type="number" step="0.01" value="${r(k,1)}"></label>
+        `).join('')}
+      </div>
+      <div class="sticky-actions"><button class="btn good" onclick="Actions.saveApplicationEdit('${id}')">Save</button></div>
+    `);
+  },
+
+  async saveApplicationEdit(id){
+    const a = State.data.applications.find(x=>x.id===id);
+    if(!a) return;
+    a.name = document.getElementById('ae_name').value;
+    ["resin","filler","glass","lpa","catalyst","accelerator","thickener","pigment","fr","other"].forEach(k=>{
+      a.targetRanges[k] = [Util.num(document.getElementById(`ae_${k}_min`).value), Util.num(document.getElementById(`ae_${k}_max`).value)];
+    });
+    await saveAllData();
+    UI.closeModal();
+    UI.render();
+  },
+
+  addPreset(){
+    UI.modal("Add Preset", `
+      <div class="two-col">
+        <label>Preset Name<input id="pr_name"></label>
+        <label>Application<select id="pr_app">${State.data.applications.map(a=>`<option value="${a.id}">${a.name}</option>`).join('')}</select></label>
+      </div>
+      <div class="note" style="margin:10px 0">After saving, edit the preset composition in JSON via Database export/import or extend this editor as needed.</div>
+      <div class="sticky-actions"><button class="btn good" onclick="Actions.savePreset()">Save Preset</button></div>
+    `);
+  },
+
+  async savePreset(){
+    State.data.presets.push({
+      id:Util.uid("PRE"),
+      applicationId:document.getElementById('pr_app').value,
+      name:document.getElementById('pr_name').value,
+      editable:true,
+      composition:DEFAULT_MATERIAL_GROUPS.map(cat=>({category:cat,percent:0})),
+      sourceType:"User-entered",
+      confidence:"User-entered",
+      reference:"",
+      created:Util.today()
+    });
+    await saveAllData();
+    UI.closeModal();
+    UI.render();
+  },
+
+  async saveSettings(){
+    const s = getSettings();
+    s.unitsSystem = document.getElementById('set_units').value;
+    s.defaultCurrency = document.getElementById('set_cur').value;
+    s.exchangeRates.USD = Util.num(document.getElementById('set_usd').value,83);
+    s.exchangeRates.CNY = Util.num(document.getElementById('set_cny').value,11.5);
+    s.exchangeRates.EUR = Util.num(document.getElementById('set_eur').value,90);
+    s.costToggles.freight = document.getElementById('set_freight').value==="true";
+    s.costToggles.insurance = document.getElementById('set_insurance').value==="true";
+    s.costToggles.duty = document.getElementById('set_duty').value==="true";
+    s.costToggles.gst = document.getElementById('set_gst').value==="true";
+    s.costToggles.other = document.getElementById('set_other').value==="true";
+    await saveAllData();
+    UI.render();
+    alert("Settings saved.");
+  },
+
+  editInventory(id){
+    const inv = State.data.inventory.find(x=>x.id===id);
+    if(!inv) return;
+    UI.modal("Edit Inventory", `
+      <div class="two-col">
+        <label>Current Stock (kg)<input id="iv_cur" type="number" step="0.01" value="${inv.currentStockKg || 0}"></label>
+        <label>Minimum Stock (kg)<input id="iv_min" type="number" step="0.01" value="${inv.minStockKg || 0}"></label>
+        <label>Maximum Stock (kg)<input id="iv_max" type="number" step="0.01" value="${inv.maxStockKg || 0}"></label>
+        <label>Reserved Quantity (kg)<input id="iv_res" type="number" step="0.01" value="${inv.reservedKg || 0}"></label>
+        <label>Supplier<input id="iv_sup" value="${inv.supplier || ''}"></label>
+        <label>Lead Time<input id="iv_lt" value="${inv.leadTime || ''}"></label>
+        <label>Last Purchase Price<input id="iv_lpp" type="number" step="0.01" value="${inv.lastPurchasePrice || 0}"></label>
+        <label>Current Price<input id="iv_cp" type="number" step="0.01" value="${inv.currentPrice || 0}"></label>
+        <label>Price Trend<input id="iv_trend" value="${inv.priceTrend || ''}"></label>
+      </div>
+      <div class="sticky-actions"><button class="btn good" onclick="Actions.saveInventory('${id}')">Save</button></div>
+    `);
+  },
+
+  async saveInventory(id){
+    const inv = State.data.inventory.find(x=>x.id===id);
+    if(!inv) return;
+    inv.currentStockKg = Util.num(document.getElementById('iv_cur').value);
+    inv.minStockKg = Util.num(document.getElementById('iv_min').value);
+    inv.maxStockKg = Util.num(document.getElementById('iv_max').value);
+    inv.reservedKg = Util.num(document.getElementById('iv_res').value);
+    inv.availableKg = inv.currentStockKg - inv.reservedKg;
+    inv.supplier = document.getElementById('iv_sup').value;
+    inv.leadTime = document.getElementById('iv_lt').value;
+    inv.lastPurchasePrice = Util.num(document.getElementById('iv_lpp').value);
+    inv.currentPrice = Util.num(document.getElementById('iv_cp').value);
+    inv.priceTrend = document.getElementById('iv_trend').value;
+    await saveAllData();
+    UI.closeModal();
+    UI.render();
+  },
+
+  exportBatchSheet(){
+    const f = getActiveFormulation();
+    if(!f) return;
+    const r = Calc.computeFormulation(f);
+    let csv = "Material,Percent,Kg per Batch,Price per Kg,Total Cost\n";
+    f.items.forEach(it=>{
+      csv += [
+        Util.csvEscape(it.ingredient),
+        it.percent,
+        it.kgBatch,
+        it.pricePerKg,
+        it.totalCost
+      ].join(",") + "\n";
+    });
+    csv += `Total,${r.totalPercent},${r.totalBatchKg},,${r.totalMaterialCost}\n`;
+    Util.download("Batch_Sheet.csv", csv, "text/csv");
+  },
+
+  exportJSON(){
+    Util.download("SMC_Workbench_Backup.json", JSON.stringify(State.data,null,2));
+  },
+
+  exportExcelCompatible(){
+    const f = getActiveFormulation();
+    const r = f ? Calc.computeFormulation(f) : null;
+    const whatif = State.lastWhatIf || [];
+    const revs = f ? State.data.revisions.filter(rv=>rv.formulationId===f.id) : [];
+    const xml = SpreadsheetML.build({
+      formulation:f, results:r,
+      materials:State.data.materials,
+      suppliers:State.data.suppliers,
+      priceHistory:State.data.priceHistory,
+      whatif,
+      revisions:revs
+    });
+    Util.download("SMC_Workbench_Export.xml", xml, "application/vnd.ms-excel");
+  },
+
+  importData(){
+    const fi = document.getElementById('fileInput');
+    fi.value = "";
+    fi.accept = ".json,.csv,.xml,.txt";
+    fi.onchange = async e=>{
+      const file = e.target.files[0];
+      if(!file) return;
+      const text = await file.text();
+      try{
+        if(file.name.toLowerCase().endsWith('.json')){
+          const obj = JSON.parse(text);
+          if(obj.formulations || obj.materials || obj.suppliers){
+            if(confirm("Replace current database with imported JSON?")){
+              DB.stores.forEach(s=>{ if(obj[s]) State.data[s] = obj[s]; });
+              await saveAllData();
+              if(State.data.formulations.length) State.activeFormulationId = State.data.formulations[0].id;
+              UI.render();
+              alert("JSON imported.");
+            }
+          }else{
+            const single = obj;
+            if(single.items){
+              single.id = Util.uid("FORM");
+              single.formulationId = single.formulationId || Util.uid("F");
+              State.data.formulations.push(single);
+              State.activeFormulationId = single.id;
+              await saveAllData();
+              UI.render();
+              alert("Formulation imported.");
+            }
+          }
+        }else if(file.name.toLowerCase().endsWith('.csv')){
+          const rows = Util.parseCSV(text);
+          alert("CSV parsed. For this offline build, use JSON for full-fidelity import. CSV import can be extended per your company schema.");
+          console.log(rows);
+        }else{
+          alert("Excel-compatible XML import is not fully mapped in this build. Use JSON for robust import.");
+        }
+      }catch(err){
+        alert("Import failed: " + err.message);
+      }
+    };
+    fi.click();
+  },
+
+  async factoryReset(){
+    if(!confirm("Reset factory presets and demo database? This will overwrite current stored data.")) return;
+    const init = createInitialData();
+    for(const store of DB.stores){
+      State.data[store] = init[store] || [];
+    }
+    await saveAllData();
+    State.activeFormulationId = State.data.formulations[0]?.id || null;
+    UI.render();
+  }
+};
+
+/* -------------------------
+   SpreadsheetML export
+------------------------- */
+const SpreadsheetML = {
+  esc(s){
+    return String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  },
+  cell(v){
+    return `<Cell><Data ss:Type="String">${this.esc(v)}</Data></Cell>`;
+  },
+  row(arr){
+    return `<Row>${arr.map(v=>this.cell(v)).join('')}</Row>`;
+  },
+  table(rows){
+    return `<Table>${rows.join('')}</Table>`;
+  },
+  sheet(name, rows){
+    return `<Worksheet ss:Name="${this.esc(name)}">${this.table(rows)}</Worksheet>`;
+  },
+  build({formulation,results,materials,suppliers,priceHistory,whatif,revisions}){
+    const ssTop = `<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">`;
+    const ssEnd = `</Workbook>`;
+
+    const sh1 = [];
+    sh1.push(this.row(["Formulation Summary"]));
+    if(formulation){
+      [["Formulation ID",formulation.formulationId],["Name",formulation.name],["Application",formulation.application],["Revision",formulation.revision],["Engineer",formulation.engineer],["Target Weight kg",formulation.targetWeightKg],["Notes",formulation.notes]].forEach(r=>sh1.push(this.row(r)));
+    }
+
+    const sh2 = [this.row(["Composition"]), this.row(["Ingredient","Supplier","Grade","Percent","kg/batch","Price/kg","Cost/kg","Total Cost","Density","Function"])];
+    (formulation?.items || []).forEach(it=>sh2.push(this.row([it.ingredient,it.supplier,it.grade,it.percent,it.kgBatch,it.pricePerKg,it.costPerKg,it.totalCost,it.density,it.function])));
+
+    const sh3 = [this.row(["Material Properties"]), this.row(["Category","Material Name","Grade","Supplier","Density","Tensile Strength","Flexural Strength","Flexural Modulus","HDT","Price/kg","Currency","Source","Confidence","Reference"])];
+    materials.forEach(m=>sh3.push(this.row([m.category,m.materialName,m.grade,m.supplier,m.density,m.tensileStrength,m.flexuralStrength,m.flexuralModulus,m.HDT,m.pricePerKg,m.currency,m.sourceType,m.confidence,m.reference])));
+
+    const sh4 = [this.row(["Supplier Data"]), this.row(["Supplier ID","Company","Type","Category","Grade","Product","Country","City","State","Website","Contact","Price","Currency","MOQ","Lead Time","Source","Reliability"])];
+    suppliers.forEach(s=>sh4.push(this.row([s.supplierId,s.companyName,s.manufacturerDistributor,s.materialCategory,s.materialGrade,s.productName,s.country,s.city,s.state,s.website,s.contactInformation,s.price,s.priceCurrency,s.moq,s.leadTime,s.sourceReference,s.reliabilityStatus])));
+
+    const sh5 = [this.row(["Pricing"]), this.row(["Date","Material ID","Supplier","Grade","INR/kg","USD/kg","CNY/kg","EUR/kg","Source","Confidence"])];
+    priceHistory.forEach(p=>sh5.push(this.row([p.date,p.materialId,p.supplier,p.grade,p.INRkg,p.USDkg,p.CNYkg,p.EURkg,p.sourceType,p.confidence])));
+
+    const sh6 = [this.row(["Cost Calculation"])];
+    if(results){
+      [["Total Percent",results.totalPercent],["Total Batch kg",results.totalBatchKg],["Total Material Cost",results.totalMaterialCost],["Formulation Cost/kg",results.formulationCostPerKg],["Manufacturing Cost/kg",results.manufacturingCostPerKg],["Selling Price/kg",results.sellingPricePerKg]].forEach(r=>sh6.push(this.row(r)));
+    }
+
+    const sh7 = [this.row(["Combined Properties"]), this.row(["Property","Value"])];
+    if(results) PROPERTY_DEFS.forEach(p=>sh7.push(this.row([`${p.label} (${p.unit})`, results.properties[p.key]])));
+
+    const sh8 = [this.row(["Batch Calculation"]), this.row(["Material","Percent","kg/batch","Price/kg","Total Cost"])];
+    (formulation?.items || []).forEach(it=>sh8.push(this.row([it.ingredient,it.percent,it.kgBatch,it.pricePerKg,it.totalCost])));
+
+    const sh9 = [this.row(["What-if Analysis"]), this.row(["Ingredient Percent","Density","Tensile","Flexural","Modulus","HDT","Cost/kg"])];
+    whatif.forEach(w=>sh9.push(this.row([w.percent,w.density,w.tensileStrength,w.flexuralStrength,w.flexuralModulus,w.HDT,w.costPerKg])));
+
+    const sh10 = [this.row(["Revision History"]), this.row(["Revision","Date","Engineer","Reason","Changes","Notes"])];
+    revisions.forEach(rv=>sh10.push(this.row([rv.revision,rv.date,rv.engineer,rv.reason,rv.changes,rv.notes])));
+
+    return ssTop
+      + this.sheet("Formulation Summary", sh1)
+      + this.sheet("Composition", sh2)
+      + this.sheet("Material Properties", sh3)
+      + this.sheet("Supplier Data", sh4)
+      + this.sheet("Pricing", sh5)
+      + this.sheet("Cost Calculation", sh6)
+      + this.sheet("Combined Properties", sh7)
+      + this.sheet("Batch Calculation", sh8)
+      + this.sheet("What-if Analysis", sh9)
+      + this.sheet("Revision History", sh10)
+      + ssEnd;
+  }
+};
+
+/* -------------------------
+   Global buttons
+------------------------- */
+document.getElementById('btnNewFormulation').onclick = ()=>{
+  State.currentView = "New Formulation";
+  UI.render();
+};
+document.getElementById('btnSaveAll').onclick = async ()=>{
+  await saveAllData();
+  alert("Database saved.");
+};
+document.getElementById('btnBackup').onclick = ()=>Actions.exportJSON();
+document.getElementById('btnRestore').onclick = ()=>Actions.importData();
+document.getElementById('btnFactoryReset').onclick = ()=>Actions.factoryReset();
+document.getElementById('modal').addEventListener('click', e=>{
+  if(e.target.id==='modal') UI.closeModal();
+});
+
+/* -------------------------
+   Boot
+------------------------- */
+(async function(){
+  await DB.open();
+  await loadAllData();
+  UI.render();
+})();
+</script>
+</body>
+</html>
